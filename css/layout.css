@@ -1,0 +1,201 @@
+/* ===========================================================
+   SWIPE PANELS
+   Turns the six homepage sections into full-screen panels driven
+   by GSAP's ScrollTrigger.observe() instead of normal page scroll
+   — see js/swipe-panels.js. Adapted from the swipe-panels.html
+   reference: every transition here moves on the Y axis only (no
+   horizontal pairs), to match the vertical-only navigation used
+   everywhere else on the site.
+
+   overflow-y: auto is a placeholder safety net, not a real fix —
+   a panel taller than the viewport is technically reachable by
+   scrolling inside it, but the page-level wheel listener that
+   swipes between panels intercepts the same wheel events first,
+   so in practice that inner scroll doesn't get a chance to run.
+   Módulos and Família (+ footer) are the two panels this affects.
+=========================================================== */
+.swipe-section {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  width: 100%;
+  overflow: visible;
+}
+
+.swipe-section .section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.swipe-section .section::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===========================================================
+   RESET / BASE
+=========================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+/* turn.js computes each page's position/transform assuming the
+   browser default (content-box). The global reset above breaks
+   that math and makes pages vanish mid-flip, so the book and
+   everything turn.js creates inside it opts back out. */
+.sj-book,
+.sj-book * {
+  box-sizing: content-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+strong {
+  font-weight: 600;
+}
+
+/* Scroll stays fully functional — only the visible scrollbar UI is
+   hidden, across engines (Firefox, IE/old Edge, WebKit/Chromium). */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--black);
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ===========================================================
+   HOMEPAGE
+=========================================================== */
+
+#homepage {
+  overflow-x: clip;
+}
+
+
+.section__inner {
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: clamp(12px, 1.4vw, 24px);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 15px;
+}
+
+.section__title {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: clamp(30px, 5vw, 52px);
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+
+.familia__content .section__title{
+  text-align:left;
+}
+
+.section__lead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.4;
+  color: var(--green);
+  max-width: 62ch;
+  margin-bottom: 30px;
+
+}
+
+.section__note {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--cyan-dark);
+  margin-top: 28px;
+}
+
+/* -- shared section shell -- */
+.section {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.section--statement {
+  align-items: center;
+}
+
+.section--sobre .section__title,
+.section--modulos .section__title,
+.section--conquistas .section__title {
+  color: var(--green);
+}
+
+/* PERF: panels only get their own compositor layer while they are moving
+   (classes toggled by markMoving() in js/swipe/panels.js). Keeping all six
+   full-screen panels + their filtered backgrounds promoted at all times would
+   cost a lot of GPU memory; promoting them just for the 0.75s swipe avoids
+   re-rasterising them on every frame of the slide / filter crossfade. */
+.swipe-section .section.is-animating {
+  will-change: transform;
+}
+
+.swipe-section .section.is-animating .section__bg::before {
+  will-change: filter;
+}

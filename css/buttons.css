@@ -1,0 +1,73 @@
+/* -- buttons -- */
+.btn {
+  font-family: var(--font-hand);
+  font-size: clamp(17px, 2vw, 20px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 34px;
+  border-radius: 999px;
+  border: 3px solid var(--black);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-5px);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--cyan-dark);
+  outline-offset: 3px;
+}
+
+.btn--primary {
+  background: var(--cyan);
+  color: var(--cream);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.btn--small {
+  font-size: 14px;
+  padding: 8px 20px;
+  border-width: 2px;
+}
+
+/* Image buttons (Entrar, Registar, Começar a aventura): the image itself
+   is the whole button, so the pill background/border/padding from .btn
+   is stripped here and only sizing + the shared hover lift stay. Swap
+   the placeholder file names below for the real assets when ready. */
+.btn--image {
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 0;
+}
+
+.btn--image img {
+  display: block;
+  height: 50px;
+  width: auto;
+}
+
+.site-header__actions .btn--image,
+.site-footer__actions .btn--image {
+  box-shadow: none;
+}
+
+.hero__actions .btn--image img {
+  height: 65px;
+   transition: transform 0.25s ease, filter 0.25s ease, opacity 0.2s ease;
+  filter: drop-shadow(#00000027 15px 10px 4px);
+}
+
+.hero__actions .btn--image:hover img{
+  filter: drop-shadow(#00000027 15px 10px 4px) brightness(1.15) saturate(1.06)
+}

@@ -1,0 +1,426 @@
+@font-face {
+	font-family: 'Daruma Drop One';
+	src: url('../fonts/DarumaDropOne-Regular.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+}
+
+:root {
+	--font-flip: 'Daruma Drop One', sans-serif;
+}
+
+.animated {
+	-webkit-transition: margin-left 0.2s ease-in-out;
+	-moz-transition: margin-left 0.2s ease-in-out;
+	-o-transition: margin-left 0.2s ease-in-out;
+	-ms-transition: margin-left 0.2s ease-in-out;
+	transition: margin-left 0.2s ease-in-out;
+}
+
+/* Wrapper that turn.js knows nothing about: it just claims the
+   available width (capped at the book's native size) so JS can
+   measure it and apply a matching `zoom` to #canvas. Flex item
+   sizing needs min-width:0 or it refuses to shrink below the
+   book's native 1420px content size and overflows on mobile. */
+.flipbook-scale {
+    width: 100%;
+    max-width: 1420px;
+    min-width: 0;
+    margin: 0 auto;
+
+}
+
+#canvas {
+    width: 1420px;
+    height: 520px;
+    margin: 0 auto;
+    transform-origin: top left;
+
+}
+
+#book-zoom {
+	-webkit-transition: -webkit-transform 1s;
+	-moz-transition: -moz-transform 1s;
+	-ms-transition: -ms-transform 1s;
+	-o-transition: -o-transform 1s;
+	transition: transform 1s;
+}
+
+.sj-book {
+	width: 1420px;
+	height: 520px;
+	filter: drop-shadow(#00000059 15px 10px 4px);
+	 user-select: none;
+  -webkit-user-select: none;
+}
+
+
+
+.sj-book .p2 .book-content {
+	background-image: url(../pics/pageLeft.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	box-sizing: border-box;
+	width: 690px;
+	height: 462px;
+	overflow: hidden;
+	position: absolute;
+	right: 0px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.sj-book .p9 .book-content {
+	background-image: url(../pics/pageRight.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	box-sizing: border-box;
+	width: 690px;
+	height: 462px;
+	overflow: hidden;
+	position: absolute;
+	left: 0px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.sj-book .book-content {
+	letter-spacing: 0.03em;
+	word-spacing: 0.2em;
+	font-family: var(--font-flip);
+	font-size: 22px;
+	color: #6a6355;
+}
+
+.sj-book .p2 .book-content,
+.sj-book .p4 .book-content,
+.sj-book .p6 .book-content,
+.sj-book .p8 .book-content {
+	padding: 35px 80px 60px 40px;
+}
+
+.sj-book .p3 .book-content,
+.sj-book .p7 .book-content,
+.sj-book .p9 .book-content {
+	padding: 35px 40px 60px 80px;
+}
+
+.sj-book .p5 .book-content {
+	padding: 17px 40px 60px 80px;
+}
+
+.sj-book .book-content h2 {
+	text-align: center;
+	font-size: 45px;
+	text-transform: uppercase;
+	color: var(--black);
+}
+
+.sj-book .p2 .book-content h2,
+.sj-book .p7 .book-content h2,
+.sj-book .p8 .book-content h2,
+.sj-book .p9 .book-content h2 {
+	margin-top: 25px;
+	color: var(--black);
+	text-decoration: underline;
+	text-decoration-thickness: 4px;
+	text-decoration-color: var(--black);
+	text-underline-offset: 0.2em;
+	font-size: 26px;
+}
+
+
+
+.sj-book .p2 .book-content p:nth-last-child(-n+4),
+.sj-book .p5 .book-content p:nth-child(-n+6) {
+	text-indent: 0px;
+	color: #735915;
+	background-color: #ffea7fd4;
+	padding: 5px 22px;
+	margin: 8px 0;
+	border-radius: 4px;
+}
+
+.sj-book .p3 .book-content p {
+	font-size: 20px;
+}
+
+
+.sj-book .zoom-this:hover {
+	opacity: 0.9;
+	cursor: pointer;
+}
+
+.sj-book .book-content p {
+	text-indent: 22px;
+	margin: 20px 0;
+	line-height: 1.2em;
+	/*hyphens: auto;*/
+}
+
+
+.sj-book .own-size {
+	box-sizing: border-box;
+}
+
+
+.sj-book .book-content img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	box-sizing: border-box;
+}
+
+.sj-book .right-pic,
+.sj-book .left-pic {
+	margin: 15px auto;
+	text-align: center;
+	text-indent: 0;
+	max-width: 100%;
+}
+
+.sj-book .right-pic img,
+.sj-book .left-pic img {
+	display: block;
+	width: auto;
+	height: auto;
+	margin: 0 auto;
+}
+
+.sj-book .right-pic img {
+	max-width: 83%;
+}
+
+.sj-book .left-pic img {
+	max-width: 70%;
+}
+
+.sj-book .p4 img {
+	max-width: 90%;
+}
+
+.sj-book .p8 img {
+	max-width: 65%;
+}
+
+.sj-book .p9 img {
+	max-width: 76%;
+}
+
+
+
+
+.sj-book .page {
+	-webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+	-ms-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+	-o-box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.zoom-pic {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.2);
+	z-index: 999;
+}
+
+.zoom-pic img {
+	-webkit-box-shadow: 0 0 20px #999;
+	-moz-box-shadow: 0 0 20px #999;
+	-o-box-shadow: 0 0 20px #999;
+	-ms-box-shadow: 0 0 20px #999;
+	box-shadow: 0 0 20px #999;
+}
+
+.sj-book .p1 {
+
+	background-image: url(../pics/cover.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p10 {
+
+	background-image: url(../pics/back.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p3,
+.sj-book .p5,
+.sj-book .p7 {
+
+	background-image: url(../pics/pageRight.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p4,
+.sj-book .p6,
+.sj-book .p8 {
+
+	background-image: url(../pics/pageLeft.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p2 {
+
+	background-image: url(../pics/coverInterior.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p9 {
+
+	background-image: url(../pics/backInterior.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p1 .side {
+	width: 710px;
+	height: 520px;
+	position: absolute;
+	top: 0;
+	left: 705px;
+
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #bbb), color-stop(0.5, #ddd), color-stop(1, #bbb));
+	background-image: -webkit-linear-gradient(left, #bbb, #ddd, #bbb);
+	background-image: -moz-linear-gradient(left, #bbb, #ddd, #bbb);
+	background-image: -ms-linear-gradient(left, #bbb, #ddd, #bbb);
+	background-image: -o-linear-gradient(left, #bbb, #ddd, #bbb);
+	background-image: linear-gradient(left, #bbb, #ddd, #bbb);
+
+	-webkit-transform: rotateY(-90deg);
+	-moz-transform: rotateY(-90deg);
+	-o-transform: rotateY(-90deg);
+	-ms-transform: rotateY(-90deg);
+	transform: rotateY(-90deg);
+
+	-webkit-transform-origin: top right;
+	-moz-transform-origin: top right;
+	-o-transform-origin: top right;
+	-ms-transform-origin: top right;
+	transform-origin: top right;
+	z-index: 100000;
+
+}
+
+.sj-book .hard {
+	width: 710px;
+	height: 520px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	-ms-box-shadow: none;
+	box-shadow: none;
+}
+
+.sj-book .page-wrapper {
+	-webkit-perspective: 2000px;
+	-moz-perspective: 2000px;
+	-ms-perspective: 2000px;
+	perspective: 2000px;
+}
+
+.sj-book .own-size {
+	width: 690px;
+	height: 462px;
+	background-color: white;
+	overflow: hidden;
+}
+
+.sj-book .even:not(.p2):not(.p10) {
+	background: -webkit-gradient(linear, left top, right top, color-stop(0.95, #fff), color-stop(1, #dadada));
+	background-image: -webkit-linear-gradient(left, #fff 95%, #dadada 100%);
+	background-image: -moz-linear-gradient(left, #fff 95%, #dadada 100%);
+	background-image: -ms-linear-gradient(left, #fff 95%, #dadada 100%);
+	background-image: -o-linear-gradient(left, #fff 95%, #dadada 100%);
+	background-image: linear-gradient(left, #fff 95%, #dadada 100%);
+}
+
+.sj-book .odd:not(.p1):not(.p9) {
+	background: -webkit-gradient(linear, right top, left top, color-stop(0.95, #fff), color-stop(1, #cacaca));
+	background-image: -webkit-linear-gradient(right, #fff 95%, #cacaca 100%);
+	background-image: -moz-linear-gradient(right, #fff 95%, #cacaca 100%);
+	background-image: -ms-linear-gradient(right, #fff 95%, #cacaca 100%);
+	background-image: -o-linear-gradient(right, #fff 95%, #cacaca 100%);
+	background-image: linear-gradient(right, #fff 95%, #cacaca 100%);
+}
+
+
+.sj-book .table-contents {
+	font-size: 16px;
+	width: 300px;
+	margin: 80px auto;
+	color: #ccc;
+}
+
+.sj-book .table-contents li {
+	list-style: none;
+	line-height: 25px;
+}
+
+.sj-book .table-contents span {
+	float: right;
+}
+
+.sj-book .table-contents a {
+	float: left;
+	width: 100%;
+	clear: both;
+	text-decoration: none;
+	color: #333;
+	margin: 2px 0;
+	padding: 0 10px;
+}
+
+.sj-book .table-contents a:hover {
+	background: #CAD1EE;
+	float: left;
+	width: 100%;
+	clear: both;
+	text-decoration: none;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	-o-border-radius: 10px;
+	-ms-border-radius: 10px;
+	border-radius: 10px;
+}
+
+.sj-book .book-content .capital,
+.sj-book .book-content .no-indent {
+	text-indent: 0;
+}
+
+.sj-book .capital:first-letter {
+	display: block;
+	float: left;
+	font-size: 300%;
+	line-height: 70%;
+	margin-right: 6px;
+	margin-top: 7px;
+	margin-left: 18px;
+}
+
+/* Turn off the turn.js flip shadow (the dark "ashadow" div it injects
+   as the 3rd child of each .page-wrapper) only for the hard-cover
+   pages: 1, 2, 7, 8. Pages 3-6 keep their gradient shadow as before. */
+.sj-book>.page-wrapper[page="1"]>div:nth-child(3),
+.sj-book>.page-wrapper[page="2"]>div:nth-child(3),
+.sj-book>.page-wrapper[page="9"]>div:nth-child(3),
+.sj-book>.page-wrapper[page="10"]>div:nth-child(3) {
+	background-color: transparent !important;
+}

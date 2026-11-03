@@ -1,0 +1,163 @@
+/* -- header -- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  z-index: 20;
+
+
+  border-bottom: 2.5px solid transparent;
+  /* transform: same duration/curve as the panel swipe in swipe-panels.js
+     (0.75s power2.inOut), so the header leaves/returns in step with it. */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.75s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+    visibility 0s linear 0s;
+}
+
+/* Hidden while the Famílias panel is showing (toggled by swipe-panels.js).
+   --hide-y (px) is set by swipe-panels.js: it's the distance needed to
+   clear both the header and the title image, shared by the two so they
+   travel identically. visibility flips only after the
+   slide finishes, so the links leave the tab order without cutting the
+   animation short; on the way back it flips instantly (delay 0s above). */
+.site-header.is-hidden {
+  transform: translateY(calc(-1 * var(--hide-y, 109px)));
+  visibility: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.75s cubic-bezier(0.455, 0.03, 0.515, 0.955),
+    visibility 0s linear 0.75s;
+}
+
+.site-header.is-scrolled {
+  border-bottom-color: var(--black);
+  box-shadow: 0 6px 18px rgba(31, 58, 61, 0.12);
+}
+
+.site-header__inner {
+  height: 100%;
+}
+
+/* Footer row uses the exact same flex layout as the header's inner
+   row: logo left, nav, buttons right. */
+.site-header__inner,
+.site-footer__row {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 40px 0px 40px;
+  gap: 24px;
+}
+
+.site-header__actions,
+.site-footer__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+/* Same drop shadow as the title image and nav links, scoped to the
+   header's own buttons (not .btn generally — the hero/familia CTAs
+   keep their plain look). Alpha bumped up from the title image's
+   #00000027 (~15%) since these buttons sit against the header, where
+   that low an opacity was basically invisible. */
+.site-header__actions .btn img,
+.site-footer__actions .btn img {
+  filter: drop-shadow(#0000004f 5px 5px 4px);
+  transition: filter 0.25s ease;
+}
+
+.site-header__actions .btn:hover img,
+.site-footer__actions .btn:hover img {
+  filter: drop-shadow(#0000004f 5px 5px 4px) brightness(1.15) saturate(1.06);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.logo img {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.site-nav,
+.site-footer__nav {
+  display: flex;
+  gap: clamp(14px, 2.4vw, 30px);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.site-nav a,
+.site-footer__nav a,
+.site-footer__tagline {
+  font-family: 'Superbusy', var(--font-body);
+  font-weight: 400;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  text-decoration: none;
+  position: relative;
+  padding: 4px 2px;
+  /* Same drop shadow as the persistent title image (.site-title-image
+     img), scoped here to the nav links/buttons only. Alpha bumped up
+     from the title image's #00000027 (~15%) — against the header
+     that was basically invisible. */
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Footer plain-text lines share the nav typography above but aren't links. */
+.site-footer__copy,
+.site-footer__tagline {
+  padding: 0;
+}
+
+.site-nav a::after,
+.site-footer__nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -2px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--cyan);
+  transition: right 0.25s ease;
+  /* Same shadow as the nav link text above it (.site-nav a text-shadow) — ::after has no text, so box-shadow stands in. */
+  box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.3);
+}
+
+.site-nav a:hover::after,
+.site-nav a.is-active::after,
+.site-footer__nav a:hover::after {
+  right: 0;
+}
+
+.site-nav a.is-active {
+  color: var(--cyan);
+}
+
+
+.section:not(.section--hero):not(.section--statement) {
+  padding: 85px 60px 0px 60px;
+}
+
+@media (max-width: 900px) {
+  .section:not(.section--hero):not(.section--statement) {
+    padding: 75px 32px 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .section:not(.section--hero):not(.section--statement) {
+    padding: 65px 20px 40px;
+  }
+}

@@ -1,0 +1,156 @@
+.section--familia {
+  background: var(--cream);
+  align-items: stretch;
+  padding-bottom: 0;
+}
+
+/* Imagem de fundo da secção (mesma técnica do .hero__ground):
+   colada ao fundo, largura total, atrás do conteúdo. */
+/* Clipping box for the two pictures below: the mouse parallax moves and
+   scales them, and this keeps that from adding scrollable overflow to the
+   panel. Same layer as the pictures used to sit on (z-index 0). */
+.familia__layers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+
+  /* Height-based sizing, same as .hero__layers: both pictures share one
+     grid cell, are as tall as the section (so they always reach the top,
+     whatever the window shape), centred horizontally and anchored to the
+     bottom. A window narrower than the picture crops it equally on both
+     sides. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 100%;
+  justify-items: center;
+  align-items: end;
+}
+
+.familia__layers > img {
+  position: relative;
+  grid-area: 1 / 1;
+  height: 100%;
+  width: auto;
+  /* If the window is wider than the picture's height-fitted width, the box
+     never gets narrower than the section; object-fit keeps the picture
+     undistorted (it scales up to cover, bottom-anchored). */
+  min-width: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+.familia__ground {
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  /* Resting look: brightness(0.65) saturate(1.8) hue-rotate(30deg). The
+     variables are animated by swipe-panels.js during the Conquistas <->
+     Família swipe (normal look <-> this look), like the other sections. */
+  filter: brightness(var(--familia-brightness, 0.65)) saturate(var(--familia-saturate, 1.8)) hue-rotate(var(--familia-hue, 30deg));
+}
+
+/* Picture laid over .familia__ground (same box), still behind the
+   section's content. Comes after it in the HTML, so it stacks above it. */
+.familia__over {
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.section--familia .section__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
+/* h2 + image-button div side by side, vertically centered in the space
+   above the footer. justify-content: space-between pushes the h2 to the
+   left edge and the button div to the right edge, with all the free
+   space in between them. */
+.familia__content {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* On narrow screens there's no room for a row, so stack them centered. */
+@media (max-width: 640px) {
+  .familia__content {
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+  }
+}
+
+/* Cancel the spacing these two elements carry for their other uses
+   (h2's bottom margin, and the hero button's bottom padding + auto
+   top margin) so they line up on the same centre line. */
+.familia__content .section__title {
+  margin-bottom: 0;
+  color: #0A5144;
+}
+
+.familia__content .hero__actions {
+  padding-bottom: 0;
+  margin-top: 0;
+}
+
+/* Walking kid: first item of the row, so it stands on the left side of the
+   section with the h2 right after it; the button div takes all the free
+   space before it (margin-left: auto) and stays on the right. script.js
+   walks the kid to the button while the button is hovered. */
+.familia__kid {
+  flex: 0 0 auto;
+  display: block;
+  /* The frames are 380x337 with transparent padding around the kid. */
+  height: clamp(90px, 15vw, 220px);
+  width: auto;
+  max-width: 100%;
+  transform-origin: 65% 50%;
+  pointer-events: none;
+  user-select: none;
+  /* Parallax offset (set by initParallax in script.js), same as the ground.
+     initKidWalk replaces this with walk offset + the same variables. */
+  translate: var(--par-x, 0px) var(--par-y, 0px);
+}
+
+.familia__content .hero__actions {
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .familia__kid {
+    margin: 0;
+  }
+
+  .familia__content .hero__actions {
+    margin-left: 0;
+  }
+}
+
+.section--familia .site-footer {
+  margin: 0 -60px 0;
+  width: calc(100% + 120px);
+}
+
+@media (max-width: 900px) {
+  .section--familia .site-footer {
+    margin: 0 -32px 0;
+    width: calc(100% + 64px);
+  }
+}
+
+@media (max-width: 640px) {
+  .section--familia .site-footer {
+    margin: 0 -20px 0;
+    width: calc(100% + 40px);
+  }
+}

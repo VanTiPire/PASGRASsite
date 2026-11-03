@@ -1,0 +1,67 @@
+@font-face {
+  font-family: "HeadingFont";
+  src: url("../fonts/Ugly-Dave.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('../fonts/Nunito-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Superbusy';
+  src: url('../fonts/Superbusy_Activity_Text.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===========================================================
+   TOKENS
+=========================================================== */
+:root {
+  --cream: #f4efe1;
+  --cyan: #1d9aaf;
+  --cyan-dark: #178da4;
+  --green-dark: #2F4230;
+  --green: #77a66a;
+  --green-light: #b2d99a;
+  --bg-width: 0px;
+  --black: #2a2623;
+
+  --shadow-strong: 0 14px 30px rgba(31, 58, 61, 0.22);
+
+  --font-hand: "HeadingFont", "Patrick Hand", cursive;
+  --font-body: 'Nunito', sans-serif;
+
+  /* Orbit tuning — adjust these two to change the running
+     character's path around the globe. Radius scales with
+     viewport height so it stays proportional on any screen. */
+
+  --orbit-radius: calc(3500 / 730 * 100vh);
+
+  --m-obesidade: #d8eccb;
+  /* reuses the brand cyan */
+  --m-alimentacao: #39352d;
+  --m-atividade: #f5e6c8;
+  --m-bemestar: #ebf5f7;
+
+  /* One dot color per module, kept separate from the --m-* accents
+     above so the list-bullet color can be tuned per module without
+     touching the title/text color. Change these four to whatever you
+     want each module's dots to be. */
+  --dot-obesidade: #006044;
+  --dot-alimentacao: #a8882e;
+  --dot-atividade: #701825;
+  --dot-bemestar: #343a5a;
+
+  --header-h: 85px;
+  --title-scale: 1;
+  --title-top: 80;
+  --title-logo-opacity: 0;
+}

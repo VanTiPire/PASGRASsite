@@ -1,0 +1,399 @@
+/* Jogo "Corta o que é saudável" (modulo1.html). Reutiliza do jogo-banco.css a moldura, o contorno, o HUD, os
+   painéis e os botões (classes jb-*); aqui só está o que é específico deste jogo (classes jf-*). */
+
+/* Fundo do cenário, desenhado em CSS: amarelo suave com uma luz clara ao centro (as manchas de sumo veem-se bem por cima).
+   Elipse bem mais larga do que alta: o centro (#fef0cb) mantém-se até cerca de um terço, e depois escurece
+   devagar para #fee5a6 nos bordos de cima e de baixo e para #fee097 nos cantos. Os bordos da esquerda e da
+   direita ficam quase claros porque a elipse é larga. A mesma variável é usada no interior do portal. */
+.jb-stage {
+  --jf-glow: radial-gradient(ellipse 87% 61% at 50% 50%,
+      #fef0cb 0%,
+      #fef0cb 33%,
+      #fdedc4 49%,
+      #fee9b5 66%,
+      #fee5a6 82%,
+      #fee097 100%);
+}
+
+.jf-bg {
+  position: absolute;
+  inset: 0;
+  background: #fee9b5 var(--jf-glow);
+}
+
+/* ===== Mitocôndria (pics/jogo-fruta/mitocondria.png, 614x289) =====
+   O CENTRO dela fica a 30% do topo do cenário, centrada na horizontal. Há duas imagens iguais, no mesmo sítio:
+   - .jf-mito--portal: dentro da elipse do portal (que corta o que sai dela). Vê-se desde o início da expansão,
+     por isso a mitocôndria já está na posição enquanto o portal cresce;
+   - .jf-mito: por baixo do portal (z-index 4). Fica escondida até o portal desvanecer, e depois fica no jogo.
+   Os alimentos (canvas, z-index 10) passam por cima. */
+.jb-stage {
+  --jf-mito-w: min(30cqw, calc(30cqh * 614 / 289));   /* nunca mais alta do que 30% do cenário */
+  --jf-mito-y: 30cqh;                                  /* altura do centro, a partir do topo do cenário */
+  --jf-portal-h: 60cqh;                                /* tutorial: altura do portal (elipse); era 29.9cqh, depois 44cqh */
+  --jf-portal-y: 80cqh;                                /* tutorial: altura do centro do portal (elipse), a partir do topo do cenário */
+  --jf-mito-end-scale: 1.5;                            /* fim de jogo: tamanho da mitocôndria (1 = tamanho normal) */
+  --jf-mito-end-y: 76cqh;                              /* fim de jogo: altura do centro, a partir do topo do cenário */
+}
+
+.jf-mito {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: var(--jf-mito-y);
+  translate: -50% -50%;
+  width: var(--jf-mito-w);
+  height: auto;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Dentro da elipse: o centro da elipse está a --jf-portal-y do topo do cenário, por isso sobe-se (portal-y - altura) */
+/* Fim de jogo: a mitocôndria cresce e desce (como o banco no jogo do banco), por trás do balão.
+   Feito com @keyframes (e não com transition) para correr sempre, mesmo que a classe .is-pulse ou o estado anterior
+   estejam a mexer em translate/scale. Entrada: jf-mito-end. Ao carregar em "Jogar outra vez" o JS põe
+   data-bench="home" no #stage e corre o caminho inverso (jf-mito-home), com a duração do balão a sair (--jf-home-ms). */
+@keyframes jf-mito-end {
+  from {
+    translate: -50% -50%;
+    scale: 1;
+  }
+
+  to {
+    translate: -50% calc(-50% + var(--jf-mito-end-y) - var(--jf-mito-y));
+    scale: var(--jf-mito-end-scale);
+  }
+}
+
+@keyframes jf-mito-home {
+  from {
+    translate: -50% calc(-50% + var(--jf-mito-end-y) - var(--jf-mito-y));
+    scale: var(--jf-mito-end-scale);
+  }
+
+  to {
+    translate: -50% -50%;
+    scale: 1;
+  }
+}
+
+.jb-stage[data-screen="end"]:not([data-bench="home"]) .jf-mito:not(.jf-mito--portal),
+.jb-stage[data-screen="end"]:not([data-bench="home"]) .jf-energy {
+  animation: jf-mito-end var(--jf-intro-ms) var(--jf-ease) both;
+}
+
+.jb-stage[data-screen="end"][data-bench="home"] .jf-mito:not(.jf-mito--portal),
+.jb-stage[data-screen="end"][data-bench="home"] .jf-energy {
+  animation: jf-mito-home var(--jf-home-ms, 800ms) var(--jf-ease) both;
+}
+
+.jf-mito--portal {
+  z-index: auto;
+  top: calc(50% - var(--jf-portal-y) + var(--jf-mito-y));
+  opacity: 0;
+}
+
+.jb-stage[data-scene="game"] .jf-mito--portal {
+  opacity: 1;                    /* aparece logo que o portal começa a crescer; a elipse só mostra a parte que já cobriu */
+}
+
+/* ===== Libertação de energia (mitoBurst em jogo-fruta.js), ao cortar um alimento saudável =====
+   A própria mitocôndria: 1) salta como uma bola de gelatina (bounce com squash e stretch); 2) brilha, com a luz a
+   seguir o contorno dela; 3) solta "ecos" de energia: cópias do mesmo desenho que crescem a partir dela e desvanecem. */
+.jf-mito.is-pulse {
+  animation: jf-mito-bounce .8s linear;
+}
+
+@keyframes jf-mito-bounce {
+  0% {
+    scale: 1 1;
+    translate: -50% -50%;
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 210, 63, 0));
+    animation-timing-function: ease-out;
+  }
+
+  14% {                                                /* agacha-se (squash) */
+    scale: 1.14 .84;
+    translate: -50% calc(-50% + var(--jf-mito-w) * .012);
+    filter: brightness(1.15) drop-shadow(0 0 calc(var(--jf-mito-w) * .03) rgba(255, 210, 63, .8));
+    animation-timing-function: cubic-bezier(.2, .8, .4, 1);
+  }
+
+  38% {                                                /* salta, esticada (stretch), a brilhar ao máximo */
+    scale: .92 1.15;
+    translate: -50% calc(-50% - var(--jf-mito-w) * .05);
+    filter: brightness(1.35) drop-shadow(0 0 calc(var(--jf-mito-w) * .09) rgba(255, 210, 63, 1));
+    animation-timing-function: cubic-bezier(.5, 0, .8, .6);
+  }
+
+  62% {                                                /* cai e esmaga-se */
+    scale: 1.1 .9;
+    translate: -50% -50%;
+    filter: brightness(1.15) drop-shadow(0 0 calc(var(--jf-mito-w) * .05) rgba(255, 210, 63, .7));
+    animation-timing-function: ease-out;
+  }
+
+  80% {                                                /* ressalto pequeno */
+    scale: .97 1.04;
+    translate: -50% calc(-50% - var(--jf-mito-w) * .008);
+    filter: brightness(1.05) drop-shadow(0 0 calc(var(--jf-mito-w) * .02) rgba(255, 210, 63, .35));
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    scale: 1 1;
+    translate: -50% -50%;
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 210, 63, 0));
+  }
+}
+
+/* Camada dos ecos: mesma caixa que a mitocôndria (z-index 3: atrás dela, para parecerem sair dela) */
+.jf-energy {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: var(--jf-mito-y);
+  translate: -50% -50%;
+  width: var(--jf-mito-w);
+  aspect-ratio: 614 / 289;
+  pointer-events: none;
+}
+
+/* Eco: o mesmo desenho, mais claro e com luz amarela à volta, que cresce e desvanece */
+.jf-echo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;           /* a mitocôndria de 1 vida tem outra proporção (608x205) */
+  opacity: 0;
+  filter: brightness(1.5) saturate(.7) drop-shadow(0 0 calc(var(--jf-mito-w) * .05) rgba(255, 210, 63, .95));
+  animation: jf-echo .85s ease-out var(--delay, 0s) forwards;
+}
+
+@keyframes jf-echo {
+  0% {
+    scale: 1;
+    opacity: .85;
+  }
+
+  100% {
+    scale: 1.55 1.9;
+    opacity: 0;
+  }
+}
+
+/* Canvas onde o jogo desenha: cobre o cenário todo e recebe o gesto de cortar (sem fazer scroll/zoom da página) */
+.jf-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* O HUD não pode apanhar o gesto; só os botões é que são clicáveis */
+.jb-hud {
+  pointer-events: none;
+}
+
+.jb-hud .jb-btn {
+  pointer-events: auto;
+}
+
+.jf-lives {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Vida: pics/jogo-fruta/lifeMito.png (78x73, mitocôndria em forma de coração) */
+.jf-life {
+  display: block;
+  height: 1.7em;
+  width: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Vida perdida: fica cinzenta e esbatida */
+.jf-life.is-lost {
+  filter: grayscale(1);
+  opacity: .3;
+  scale: .85;
+}
+
+/* Clarão quando se corta comida pouco saudável (a "bomba") */
+.jf-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 220, 140, .9), rgba(255, 120, 40, .55) 60%, rgba(255, 80, 20, 0));
+  opacity: 0;
+}
+
+.jf-flash.is-on {
+  animation: jf-flash .5s ease-out;
+}
+
+@keyframes jf-flash {
+  0% {
+    opacity: .9;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jf-flash.is-on {
+    animation: none;
+  }
+}
+
+/* ===== Tutorial e fim de jogo: o balão (jb-tut-*) vem do jogo-banco.css ===== */
+
+/* Aqui não há banco: o balão fica à frente do canvas (z-index 10) e centrado no cenário */
+.jb-stage #start-panel.jb-tut-wrap,
+.jb-stage #end-panel.jb-tut-wrap {
+  z-index: 40;                   /* o balão do fim de jogo fica à frente da mitocôndria: o botão nunca fica tapado */
+}
+/* (a posição do tutorial e do fim de jogo vem do jogo-banco.css: 33% do topo / 33% do fundo) */
+
+/* Título do jogo (texto) na barra de cima: sempre visível */
+.jf-title-text {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 10px;
+  border: 3px solid var(--cream);
+  background: var(--sign);
+  color: var(--cream);
+  font-size: clamp(16px, 2.2vw, 24px);
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+/* O título (texto) é mais largo que o do banco: passa para uma linha própria mais cedo */
+@container (max-width: 1200px) {
+  .jb-hud {
+    flex-wrap: wrap;
+  }
+
+  .jb-tut-title {
+    position: static;
+    translate: none;
+    order: -1;
+    flex-basis: 100%;
+    text-align: center;
+  }
+}
+
+/* ===== Fundo do tutorial: creme + elipse (cores e proporções do Group_476.png) =====
+   Ao carregar em "Começar" (data-scene="game") a elipse expande-se até cobrir o cenário todo e deixa de se ver:
+   a camada .jf-intro desvanece-se no fim e fica o fundo normal do jogo (.jf-bg). */
+.jb-stage {
+  --jf-intro-ms: 1000ms;         /* duração da expansão (o JS sobrepõe: EXPAND_MS) */
+  --jf-ease: cubic-bezier(.65, 0, .35, 1);
+}
+
+.jf-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 5;                    /* acima do fundo, abaixo do canvas e do balão */
+  overflow: hidden;
+  background: #fff3d9;
+  pointer-events: none;
+}
+
+/* Portal: plano à frente do balão do tutorial (z-index 40) e do canvas; o HUD fica ainda à frente (abaixo) */
+.jf-portal {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.jb-hud {
+  z-index: 50;
+}
+
+.jf-ellipse {
+  position: absolute;
+  left: 50%;
+  top: var(--jf-portal-y);
+  translate: -50% -50%;
+  box-sizing: border-box;
+  height: var(--jf-portal-h);    /* proporção 163:253 da imagem de referência */
+  width: calc(var(--jf-portal-h) * 163 / 253);
+  border: 2px solid #d26b5c;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #fdb092, #fce49b);
+}
+
+.jb-stage[data-scene="game"] .jf-ellipse {
+  height: 520cqh;                /* grande o bastante para cobrir qualquer proporção do cenário */
+  width: calc(520cqh * 163 / 253);
+  transition:
+    height var(--jf-intro-ms) var(--jf-ease),
+    width var(--jf-intro-ms) var(--jf-ease);
+}
+
+/* O interior do portal passa do degradê do tutorial para o fundo do jogo (--jf-glow): o efeito tem o tamanho do
+   cenário (e não o da elipse), por isso a elipse é uma "janela" para o fundo e, quando cobre tudo, já é o fundo do jogo.
+   Aparece (fade) enquanto a elipse se expande. */
+.jf-ellipse {
+  overflow: hidden;
+}
+
+.jf-ellipse::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(50% - var(--jf-portal-y) + 50cqh);   /* centro do cenário, mesmo com a elipse mais abaixo */
+  translate: -50% -50%;
+  width: 100cqw;
+  height: 100cqh;
+  background: var(--jf-glow);
+  opacity: 0;
+}
+
+.jb-stage[data-scene="game"] .jf-ellipse::before {
+  opacity: 1;
+  transition: opacity calc(var(--jf-intro-ms) * .6) ease-out;
+}
+
+.jb-stage[data-scene="game"] .jf-intro,
+.jb-stage[data-scene="game"] .jf-portal {
+  opacity: 0;
+  transition: opacity .35s ease-out calc(var(--jf-intro-ms) * .85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .jf-mito.is-pulse,
+  .jf-echo {
+    animation: none;
+  }
+
+  .jb-stage[data-screen="end"] .jf-mito:not(.jf-mito--portal),
+  .jb-stage[data-screen="end"] .jf-energy {
+    animation-duration: 0.01ms;
+  }
+
+  .jb-stage[data-scene="game"] .jf-ellipse,
+  .jb-stage[data-scene="game"] .jf-ellipse::before,
+  .jb-stage[data-scene="game"] .jf-intro,
+  .jb-stage[data-scene="game"] .jf-portal {
+    transition: none;
+  }
+}

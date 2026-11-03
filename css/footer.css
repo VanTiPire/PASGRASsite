@@ -1,0 +1,71 @@
+/* -- footer -- */
+.site-footer {
+  color: var(--cream);
+  padding: 48px 0 28px;
+}
+
+.site-footer__inner {
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Layout comes from the shared rule with .site-header__inner above;
+   only the width is footer-specific (its parent is a centred column,
+   so without this the row would shrink to its content). */
+.site-footer__row {
+  width: 100%;
+}
+
+.logo--footer {
+  color: var(--cream);
+}
+
+.logo--footer img {
+  height: 48px;
+  width: auto;
+  /* Same shadow as the nav text (drop-shadow follows the PNG outline). */
+  filter: drop-shadow(5px 5px 4px rgba(0, 0, 0, 0.3));
+}
+
+.logo--footer span {
+  color: var(--cyan);
+}
+
+/* Three <p> in one row, evenly spaced. Font, size, colour and shadow all
+   come from the shared .site-footer__copy rule above (the <p>s inherit
+   them, so they can never drift apart, including in the mobile query). */
+.site-footer__copy {
+  font-family: 'Superbusy', var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  padding: 0 40px;
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.site-footer__copy p {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-shadow: inherit;
+  color: inherit;
+}
+
+@media (max-width: 640px) {
+  .site-footer__copy {
+    flex-direction: column;
+    gap: 6px;
+  }
+}

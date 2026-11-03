@@ -1,0 +1,505 @@
+/* ===========================================================
+   LOADING SCREEN
+   Split out of style.css: everything that drives the loading
+   screen itself (fact card, progress bar, globe, running
+   character) and its handoff to the homepage. Depends on the
+   shared tokens (:root) and the base/reset rules that remain in
+   style.css, so load this file AFTER style.css.
+=========================================================== */
+
+/* The page only needs to be locked/full-height while the loader
+   is showing. Once loading finishes this class is removed and
+   the homepage behaves like a normal scrollable page. */
+body.is-loading {
+  overflow: hidden;
+  height: 100vh;
+}
+
+
+/* ===========================================================
+   UI LAYER
+=========================================================== */
+.ui {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(20px, 5vh, 56px) 20px 60px;
+}
+
+
+/* -- fact card (speech bubble) -- */
+.fact-card {
+  position: relative;
+
+  width: min(90vw, 520px);
+  /* responsive width */
+
+  z-index: 2;
+  animation: floating 2s ease-in-out infinite;
+
+}
+
+@keyframes loading-in {
+  from {
+    filter: blur(4px);
+    opacity: 0;
+    transform:
+      scale(.6);
+  }
+
+  to {
+    filter: blur(0);
+    opacity: 1;
+    transform:
+      scale(1);
+  }
+}
+
+@keyframes loading-out {
+  from {
+    filter: blur(0);
+    opacity: 1;
+    transform:
+      scale(1);
+  }
+
+  to {
+    filter: blur(4px);
+    opacity: 0;
+    transform:
+      scale(0.5);
+  }
+}
+
+@keyframes card-in {
+  from {
+    filter: blur(4px);
+    opacity: 0;
+    transform:
+      rotate(40deg) scale(.5);
+  }
+
+  to {
+    filter: blur(0);
+    opacity: 1;
+    transform:
+      rotate(0deg) scale(1);
+  }
+}
+
+/* Inverse of card-in — plays on the way out, right before the
+   loading screen fades and the homepage is revealed. */
+@keyframes card-out {
+  from {
+    filter: blur(0);
+    opacity: 1;
+    transform:
+      rotate(0deg) scale(1);
+  }
+
+  to {
+    filter: blur(4px);
+    opacity: 0;
+    transform:
+      rotate(-40deg) scale(.5);
+  }
+}
+
+.fact-card__div.is-leaving {
+  animation: card-out .8s cubic-bezier(.64, 0, .78, 0) forwards;
+}
+
+.loading-panel.is-leaving {
+  animation: loading-out .8s cubic-bezier(.64, 0, .78, 0) forwards;
+}
+
+.fact-card__div {
+
+  opacity: 0;
+  animation: card-in .9s cubic-bezier(.22, 1, .36, 1) 1.3s forwards;
+  transform-origin: bottom center;
+  background: url("../pics/loading/bubble.png") center / 100% 100% no-repeat;
+  text-align: center;
+  background-size: contain;
+  padding: 40px 48px 55px;
+}
+
+@keyframes floating {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+    /* Moves up */
+  }
+}
+
+.fact-card__badge {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fact-card__badge img {
+  width: 52px;
+}
+
+.fact-card__title {
+  font-family: var(--font-hand);
+  font-size: clamp(28px, 4vw, 32px);
+  text-transform: uppercase;
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+}
+
+.fact-card__text {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(15px, 2vw, 17px);
+  color: var(--black);
+  line-height: 1.3;
+    letter-spacing: 0.5px;
+  min-height: 3.2em;
+  transition: opacity 0.4s ease;
+}
+
+.fact-card__text.is-fading {
+  opacity: 0;
+}
+
+/* -- loading panel -- */
+.loading-panel {
+  z-index: 2;
+  width: min(90vw, 750px);
+  text-align: center;
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: loading-in 0.9s cubic-bezier(.22, 1, .36, 1) 1.3s forwards;
+}
+
+
+
+.loading-panel__title {
+  font-family: var(--font-hand);
+  font-size: clamp(24px, 4.4vw, 42px);
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 14px;
+}
+
+.cssProgress-bar {
+  position: relative;
+  height: 100%;
+  transition: width 0.12s linear;
+}
+
+.cssProgress-label {
+  font-family: var(--font-hand);
+  font-size: clamp(14px, 2vw, 22px);
+  color: var(--black);
+  letter-spacing: 1px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+
+/* Loading bar: black stroke on the outside, white stroke
+   directly underneath it, then the fill/background inside. */
+.cssProgress {
+  position: relative;
+  width: 100%;
+  height: clamp(28px, 4.2vw, 45px);
+  background: #a6bdAb;
+  border: 4px solid var(--cream);
+  box-shadow:
+    0 0 0 2.5px var(--black),
+    var(--shadow-strong);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.center-image {
+  position: fixed;
+  top: 0;
+  width: calc(3500 / 730 * 100vh);
+  pointer-events: none;
+  /* image won't block clicks */
+  z-index: 0;
+  opacity: 0;
+  animation:
+    globeFade 1s ease-out forwards .2s,
+    globeIntro 2.1s cubic-bezier(.22, 1, .36, 1) .2s forwards;
+}
+
+.center-image.is-leaving {
+
+  opacity: 1;
+  animation: globeOutro 1.07s
+    /* Very quick exit */
+    cubic-bezier(.7, 0, 1, .5) forwards, globeFade-out 1s ease-in forwards;
+}
+
+.center-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: rotate 58s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+
+
+@keyframes globeIntro {
+  0% {
+    transform: scale(0.45) rotate(var(--globe-random-angle, 0deg));
+  }
+
+  100% {
+    transform: scale(1) rotate(calc(var(--globe-random-angle, 0deg) - 126deg));
+  }
+}
+
+@keyframes globeOutro {
+  0% {
+    transform: scale(1) rotate(calc(var(--globe-random-angle, 0deg) - 126deg));
+  }
+
+  100% {
+    transform: scale(0.45) rotate(calc(var(--globe-random-angle, 0deg) - 126deg - 55deg));
+  }
+}
+
+@keyframes globeFade {
+  0% {
+    opacity: 0;
+  }
+
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes globeFade-out {
+  0% {
+    opacity: 1;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.foreground-image {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: calc(260 / 730 * 100vh);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation:
+    globeFade 1.4s ease-out 0.2s forwards,
+    orbit 2s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+/* Exit is no longer on a fixed timer — it only plays once JS adds
+   .is-leaving (loading actually finished), same as the fact card and
+   loading panel. Picks up from orbit's end state, held via `forwards`
+   above. orbit-out is the longer of the two (2.1s vs 1.4s) and is what
+   script.js listens for to know the exit is done. */
+.foreground-image.is-leaving {
+  animation:
+    orbit-out 1.2s cubic-bezier(.50, 0, .75, 0) forwards,
+    globeFade-out 0.7s ease-in forwards;
+}
+
+.foreground-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@keyframes orbit {
+  from {
+    transform:
+      translate(-50%, -50%) translateY(var(--orbit-radius)) scale(0.40)
+      /* shifts the whole orbit down */
+      rotate(180deg) translateX(var(--orbit-radius)) rotate(-180deg)
+      /* cancels orbit rotation → stays upright */
+      rotate(-270deg);
+    /* self-spin: start angle */
+
+  }
+
+  to {
+    transform:
+      translate(-50%, -50%) translateY(var(--orbit-radius)) scale(1)
+      /* shifts the whole orbit down */
+      rotate(270deg) translateX(var(--orbit-radius)) rotate(-270deg)
+      /* cancels orbit rotation → stays upright */
+      rotate(0deg)
+      /* self-spin: end angle */
+    ;
+  }
+}
+
+@keyframes orbit-out {
+  from {
+    transform:
+      translate(-50%, -50%) translateY(var(--orbit-radius)) scale(1) rotate(270deg) translateX(var(--orbit-radius)) rotate(-270deg) rotate(0deg);
+  }
+
+  to {
+    transform:
+      translate(-50%, -50%) translateY(var(--orbit-radius)) scale(0.40)
+      /* mirror of the entrance */
+      rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg) rotate(270deg);
+  }
+}
+
+/* -----------------------------------------------------
+   CSS Progress Bars
+-------------------------------------------------------- */
+
+
+.cssProgress .cssProgress-success {
+  background-color: var(--cyan) !important;
+  height: clamp(28px, 4.2vw, 40px);
+
+}
+
+.cssProgress .cssProgress-active {
+  background-image: -webkit-linear-gradient(135deg, var(--cyan-dark) 25%, transparent 25%, transparent 50%, var(--cyan-dark) 50%, var(--cyan-dark) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(-45deg, var(--cyan-dark) 25%, transparent 25%, transparent 50%, var(--cyan-dark) 50%, var(--cyan-dark) 75%, transparent 75%, transparent);
+  background-size: 35px 35px;
+  -webkit-animation: cssProgressActive 2s linear infinite;
+  animation: cssProgressActive 2s linear infinite;
+}
+
+@-webkit-keyframes cssProgressActive {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 35px 35px;
+  }
+}
+
+@keyframes cssProgressActive {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 35px 35px;
+  }
+}
+
+/* ===========================================================
+   LOADING SCREEN ↔ HOMEPAGE TRANSITION
+=========================================================== */
+
+
+#loading-screen {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+
+#loading-screen.is-hidden {
+
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#homepage {
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+
+#homepage.is-visible {
+  opacity: 1;
+}
+
+/* Chegada vinda de uma página de módulo (index.html#modulos): sem ecrã de loading e sem fade da homepage.
+   A classe é posta no <html> por um script no <head> do index.html; o loading.js (skipLoader) faz o resto. */
+.skip-loading #loading-screen {
+  display: none;
+}
+
+.skip-loading #homepage {
+  transition: none;
+}
+
+
+/* The scrolling background.png is no longer drawn here: it is the single
+   fixed .scrolling-bg element (see style.css) that sits behind both the
+   loading screen and the homepage. */
+
+/* ===========================================================
+   RESPONSIVE
+=========================================================== */
+@media (max-width: 640px) {
+  .fact-card {
+    padding: 26px 20px 20px;
+    border-radius: 20px;
+  }
+
+  .fact-card__badge {
+    width: 44px;
+    height: 44px;
+    top: -22px;
+  }
+}
+
+@media (max-height: 560px) {
+  .fact-card {
+    padding: 18px 20px 14px;
+  }
+
+  .fact-card__title {
+    margin-bottom: 4px;
+  }
+
+  .fact-card__text {
+    min-height: unset;
+  }
+
+  .loading-panel__title {
+    margin-bottom: 10px;
+  }
+}

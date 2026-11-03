@@ -1,0 +1,755 @@
+.section--modulos .section__intro,
+.section--conquistas .section__intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+}
+
+.section--modulos .section__title,
+.section--conquistas .section__title {
+  text-align: left;
+}
+
+.section--modulos .section__lead,
+.section--conquistas .section__lead {
+  max-width: none;
+}
+
+/* Unlike .section--conquistas, .section--modulos .section__intro no
+   longer collapses away as a whole when a card expands. There's still
+   only one h2 and one p (no extra elements, no extra grid row) — the
+   h2's own text is swapped by script.js (see introTitle there) to "O
+   que vais descobrir neste módulo?", it's widened to the full row and
+   centred, and the lead is hidden, so .section__intro naturally ends
+   up exactly as tall as that single centred heading.
+
+   Driven by its own .is-intro-centered class (added/removed by
+   script.js) rather than by .is-modules-expanded directly: a CSS
+   transition-delay on grid-column/text-align isn't reliably honoured
+   by every engine when the value changes as part of the SAME style
+   recalc as several other property changes (the same class of issue
+   noted on --modulos-expanded-height below), so script.js instead
+   toggles this class itself at the exact moment .section__intro is
+   already invisible, guaranteeing the centred layout only ever
+   appears while faded out. */
+.section--modulos.is-intro-centered .section__title {
+  grid-column: 1 / -1;
+  text-align: center;
+  /* Overrides the base .section__title's 20px: with the lead collapsed
+     to height 0 while expanded, this margin is the only gap between the
+     centred heading and the card below it. */
+  margin-bottom: 60px;
+  transition: color 0.4s ease;
+}
+
+.section--modulos .section__lead {
+  transition: opacity 0.7s ease, color 0.4s ease;
+}
+
+/* Also gated on .is-intro-centered, not just .is-modules-expanded:
+   collapse() removes .is-modules-expanded synchronously but only
+   removes .is-intro-centered later, via the INTRO_SWAP_AT_MS
+   setTimeout (same reasoning as the comment on
+   .section--modulos.is-intro-centered .section__title above). If
+   this rule only listened to .is-modules-expanded, its `height: 0`
+   would snap back to auto the instant collapse() starts — height
+   isn't transitioned, only opacity is — reflowing the lead into view
+   under the still-centred title well before the JS-driven layout
+   flip catches up, since that flip runs on a separate (less precise)
+   clock than this rule's own opacity transition-delay used to. Tying
+   the hidden state to .is-intro-centered too means both the lead's
+   reveal and the title's layout flip are driven by the exact same
+   classList.remove("is-intro-centered") call, in the same tick, so
+   they can no longer drift apart. The opacity transition above no
+   longer needs its own 0.5s delay either, since the JS timing (not a
+   CSS delay) is now what holds the reveal back. */
+.section--modulos.is-modules-expanded .section__lead,
+.section--modulos.is-intro-centered .section__lead {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* OPENING ONLY: quick and undelayed, same as the old collapse —
+     disappearing is meant to be brisk. Reappearing (base rule above,
+     used on close) is deliberately slower to match the longer close
+     sequence. */
+  transition: opacity 0.4s ease;
+}
+
+.section--modulos {
+  position: relative;
+  z-index: 2;
+
+  /* Resting look matches Sobre's dimmed filter (same brightness/
+     saturate as --sobre-brightness/--sobre-saturate), so Módulos
+     opens looking like a continuation of Sobre instead of snapping
+     back to full brightness. This base filter is fixed — it is never
+     overridden by the :has() rules below. Each module card's own
+     colour filter (sepia/hue/contrast, plus its own saturate/
+     brightness) instead lives in the separate --modulos-active-*
+     variables, which default to identity (no-op) and are layered on
+     top of this base in the filter chain on .section--modulos::before
+     below, so the dimmed look never disappears — the active card's
+     filter just applies on top of it. Not on hover. */
+  --modulos-sepia: 0%;
+  --modulos-hue: 0deg;
+  --modulos-saturate: 1.06;
+  --modulos-brightness: 0.65;
+  --modulos-contrast: 1;
+
+  /* Per-card filter, layered on top of the base above. Identity
+     (no-op) until a module card is active. */
+  --modulos-active-sepia: 0%;
+  --modulos-active-hue: 0deg;
+  --modulos-active-saturate: 1;
+  --modulos-active-brightness: 1;
+  --modulos-active-contrast: 1;
+}
+
+.section--modulos:has(.module-card:nth-of-type(1).is-active) {
+
+  --modulos-active-sepia: 65%;
+  --modulos-active-hue: -35deg;
+  --modulos-active-saturate: 2.5;
+  --modulos-active-brightness: 2.7;
+  --modulos-active-contrast: 0.65;
+
+}
+
+.section--modulos:has(.module-card:nth-of-type(2).is-active) {
+  --modulos-active-sepia: 100%;
+  --modulos-active-hue: -35deg;
+  --modulos-active-saturate: 6.2;
+  --modulos-active-brightness: 0.7;
+  --modulos-active-contrast: 0.7;
+}
+
+.section--modulos:has(.module-card:nth-of-type(3).is-active) {
+  --modulos-active-sepia: 100%;
+  --modulos-active-hue: 75deg;
+  --modulos-active-saturate: 2.8;
+  --modulos-active-brightness: 1.2;
+  --modulos-active-contrast: 0.8;
+}
+
+.section--modulos:has(.module-card:nth-of-type(4).is-active) {
+  --modulos-active-sepia: 0%;
+  --modulos-active-hue: 77deg;
+  --modulos-active-saturate: 0.56;
+  --modulos-active-brightness: 1.75;
+  --modulos-active-contrast: 1.21;
+}
+
+/* Intro heading/lead pick up that card's own accent colour while its
+   filter is active, so the text and the background shift together.
+   .section__lead is deliberately left out of this selector: it has
+   the exact same specificity as the opacity transition declared on
+   .section--modulos .section__lead above, and a same-specificity
+   `transition` declared later in the file replaces that one's value
+   outright rather than merging with it — which silently dropped the
+   lead's opacity transition in its base (reappearing) state. Its own
+   color transition is added there instead, alongside opacity, so one
+   rule stays the single source of truth for it. */
+.section--modulos .section__title {
+  transition: color 0.4s ease;
+}
+
+.section--modulos:has(.module-card:nth-of-type(1).is-active) .module-detail__title,
+.section--modulos:has(.module-card:nth-of-type(1).is-active) .module-detail__text,
+.section--modulos:has(.module-card:nth-of-type(1).is-active) .section__title {
+  color: var(--m-alimentacao);
+}
+
+.section--modulos:has(.module-card:nth-of-type(2).is-active) .module-detail__title,
+.section--modulos:has(.module-card:nth-of-type(2).is-active) .module-detail__text,
+.section--modulos:has(.module-card:nth-of-type(2).is-active) .section__title {
+  color: var(--m-atividade);
+}
+
+.section--modulos:has(.module-card:nth-of-type(3).is-active) .module-detail__title,
+.section--modulos:has(.module-card:nth-of-type(3).is-active) .module-detail__text,
+.section--modulos:has(.module-card:nth-of-type(3).is-active) .section__title {
+  color: var(--m-obesidade);
+}
+
+.section--modulos:has(.module-card:nth-of-type(4).is-active) .module-detail__title,
+.section--modulos:has(.module-card:nth-of-type(4).is-active) .module-detail__text,
+.section--modulos:has(.module-card:nth-of-type(4).is-active) .section__title {
+  color: var(--m-bemestar);
+}
+
+/* Bullet PNG per module: independent of the text color rules above, so
+   the two can be tuned separately. Each points at that module's own
+   dot PNG in /pics. */
+.section--modulos:has(.module-card:nth-of-type(1).is-active) .module-detail__text li::before {
+  background-image: url("../pics/dot-alimentacao.png");
+}
+
+.section--modulos:has(.module-card:nth-of-type(2).is-active) .module-detail__text li::before {
+  background-image: url("../pics/dot-atividade.png");
+}
+
+.section--modulos:has(.module-card:nth-of-type(3).is-active) .module-detail__text li::before {
+  background-image: url("../pics/dot-obesidade.png");
+}
+
+.section--modulos:has(.module-card:nth-of-type(4).is-active) .module-detail__text li::before {
+  background-image: url("../pics/dot-bemestar.png");
+}
+
+.section--modulos .section__bg::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--bg-bleed) * -1);
+
+  background-image: url("../pics/moduleSection.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter:
+    sepia(var(--modulos-sepia)) hue-rotate(var(--modulos-hue)) saturate(var(--modulos-saturate)) brightness(var(--modulos-brightness)) contrast(var(--modulos-contrast)) sepia(var(--modulos-active-sepia)) hue-rotate(var(--modulos-active-hue)) saturate(var(--modulos-active-saturate)) brightness(var(--modulos-active-brightness)) contrast(var(--modulos-active-contrast));
+  transition: filter 0.4s ease;
+
+  z-index: -1;
+}
+
+/* While js/swipe-panels.js is crossfading the Sobre<->Módulos swipe,
+   it drives --modulos-active-* directly, frame by frame, over its own
+   0.75s tween — the same tween that drives Sobre's matching
+   --sobre-active-* variables. The transition above is for the
+   0.4s ease-in when a module card is clicked; left on during the
+   swipe it would additionally smooth every one of those per-frame
+   updates, lagging Módulos' fade behind Sobre's. The is-filter-
+   crossfading class (toggled by swipe-panels.js only for the
+   duration of that tween) turns it off so both panels change at
+   exactly the same rate. */
+.section--modulos.is-filter-crossfading .section__bg::before {
+  transition: none;
+}
+
+/* Module cards 1-4 start off-screen on the left until Módulos is first
+   entered; addModulosHands() then adds .is-cards-risen and animates
+   `translate` from the left into place (with the hand), like the badges
+   in Conquistas. The individual `translate` property is used on purpose:
+   it composes with the cards' own `transform` (hover lift, carousel
+   slide) instead of fighting it. */
+.section--modulos:not(.is-cards-risen) .module-card {
+  translate: -120vw 0;
+}
+
+/* -- 3. módulos -- */
+.module-trail {
+  margin: 0px 80px 0px 80px;
+  display: flex;
+  /* flex-start rather than stretch: each card/panel sizes itself
+     explicitly (aspect-ratio normally, an explicit height when
+     expanded) instead of being forced to match whichever sibling
+     happens to have the tallest intrinsic content at any given
+     instant during a transition. */
+  align-items: flex-start;
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.7s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Nudges the whole trail up as soon as a card is opened (and back down
+   again on collapse), driven by the same .is-modules-expanded class
+   expand()/collapse() already toggle in script.js — no extra JS
+   needed. This is now the ONLY thing moving the trail on expand: the
+   intro height freeze in script.js's expand() (see introEl.style.minHeight
+   there) stops .section__intro's own shrink from adding any further
+   drift, so this translateY is a clean, fixed 40px each time rather
+   than 40px plus whatever the intro happened to lose. */
+.section--modulos.is-modules-expanded .module-trail {
+  transform: translateY(-70px);
+}
+
+.module-trail>.module-card:nth-of-type(-n+3) {
+  margin-right: 50px;
+}
+
+/* .module-trail's own left/right margin shifts its whole box (and with
+   it, everything positioned absolute against that box) inward by 80px.
+   The arrows are absolutely positioned against .module-trail, so they'd
+   normally drift inward by the same 80px — these two rules cancel that
+   out, pulling each arrow back out by the margin amount so it sits
+   exactly where it would if .module-trail had no horizontal margin at
+   all. Higher specificity (.module-trail > .flip-nav--prev/--next) is
+   what lets this win over the base -34px offsets below without relying
+   on source order. */
+.module-trail>.flip-nav--prev {
+  left: calc(-34px - 80px);
+}
+
+.module-trail>.flip-nav--next {
+  right: calc(-34px - 80px);
+}
+
+
+.module-card {
+  position: relative;
+  isolation: isolate;
+
+  flex: 1 1 0%;
+  min-width: 0;
+  aspect-ratio: 215 / 299;
+
+  box-sizing: border-box;
+  border-radius: 9px;
+  cursor: pointer;
+  /* Governs cards RETURNING to this default state (both the previously
+     hidden ones and the previously-expanded one, once .is-modules-expanded
+     is removed). Size properties change first (0.5s) so a hidden card is
+     back to full size while it's still invisible; opacity only starts
+     fading in afterwards (0.75s delay = the 0.25s the detail text takes
+     to fade out, plus the 0.5s resize), so reappearing cards are never
+     seen resizing — they're simply not there, then they fade in. */
+  transition:
+    transform 0.25s ease,
+    flex-grow 0.5s cubic-bezier(.4, 0, .2, 1) 0.2s,
+    flex-basis 0.5s cubic-bezier(.4, 0, .2, 1) 0.2s,
+    width 0.5s ease 0.2s,
+    aspect-ratio 0s linear 0.2s,
+    height 0s linear 0.2s,
+    margin 0.5s ease 0.2s,
+    opacity 0.3s ease 0.7s;
+  filter: drop-shadow(#00000059 15px 10px 4px);
+
+  /* Depth for the 3D flip below — applies to the card's children,
+     not the card itself. */
+  perspective: 1400px;
+}
+
+.module-card:hover {
+  transform: translateY(-10px);
+}
+
+.module-card.is-expanded:hover {
+  transform: translateY(-10px);
+}
+
+/* Rotating scene: this is the element that actually turns 180deg.
+   Both faces live inside it, stacked, each hidden when facing away
+   from the viewer. */
+.module-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(.4, .2, .2, 1);
+}
+
+/* OPENING ONLY: while the section carries .is-modules-expanded, the flip
+   is held back until the card has finished growing (see the 0.3s/0.5s
+   timing on .module-card.is-expanded below) - the literal mirror of
+   closing, where the flip runs for the entire 0.7s the card takes to
+   shrink, starting immediately. On close, .is-modules-expanded and
+   .is-active are removed in the same instant, so this rule stops
+   matching right away and the base transition above (no delay) takes
+   over — the closing flip timing is untouched. */
+.section--modulos.is-modules-expanded .module-card__inner {
+  transition: transform 0.7s cubic-bezier(.4, .2, .2, 1) 0.3s;
+}
+
+/* Clicking a card toggles .is-active (see script.js) — reused here
+   to drive the flip, so selecting a card both tints the section
+   (existing :has() rules below) and turns the card over. */
+.module-card.is-active .module-card__inner {
+  transform: rotateY(-180deg);
+}
+
+.module-card__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  border-radius: 9px;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.module-card__face--front {
+  background-image: var(--module-front-bg) !important;
+  padding: 30px 20px 24px;
+}
+
+.module-card__face--front h3,
+.module-card__face--front p,
+.module-card__face--front ul {
+  display: none;
+}
+
+.module-card__face--back {
+  background-image: var(--module-back-bg) !important;
+
+  transform: rotateY(-180deg);
+}
+
+.module-card__face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.module-card__face>* {
+  position: relative;
+  z-index: 1;
+}
+
+.module-card__mark {
+  display: block;
+  color: var(--module-color);
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.module-card h3 {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  text-transform: uppercase;
+  color: var(--module-color);
+  margin-bottom: 10px;
+  line-height: 1.15;
+}
+
+.module-card p,
+.module-card li {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #fdfaf3;
+}
+
+
+
+
+.section--modulos.is-modules-expanded .module-card:not(.is-expanded) {
+  flex-grow: 0;
+  flex-basis: 0px;
+  width: 0;
+  opacity: 0;
+  margin: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    flex-grow 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s,
+    flex-basis 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s,
+    width 0.5s ease 0.3s,
+    margin 0.5s ease 0.3s;
+}
+
+.section--modulos.is-modules-expanded .module-card.is-expanded {
+  flex-grow: 0;
+  flex-basis: clamp(260px, 32%, 380px);
+  aspect-ratio: auto;
+  height: var(--modulos-expanded-height, 520px);
+  margin-right: 0;
+  /* height has no delay of its own (unlike flex-grow/flex-basis/
+     margin-right below, all delayed 0.3s to GROW_AT_MS): script.js
+     drives it with a direct inline style.height instead of the
+     --modulos-expanded-height var, and defers touching it until
+     GROW_AT_MS itself via setTimeout — Chromium doesn't reliably
+     animate height/aspect-ratio when the change is routed through a
+     custom property, so a real inline value change is what the
+     transition below actually animates, and the JS-side delay is
+     what keeps it starting in step with the width growth. */
+  transition:
+    transform 0.25s ease,
+    flex-grow 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s,
+    flex-basis 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s,
+    aspect-ratio 0.5s ease 0.3s,
+    height 0.5s ease,
+    margin-right 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s;
+}
+
+.module-detail {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 0%;
+  min-width: 0;
+  /* While collapsed the panel still holds the last module's text in the
+     DOM (so it's ready to fade in instantly next time), but at 0 width
+     that text would wrap onto a huge number of lines and inflate this
+     item's intrinsic height — which align-items:stretch on .module-trail
+     would then apply to every card. Capping the height while collapsed
+     keeps that content from ever entering the stretch calculation. */
+  max-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 18px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  /* Governs the panel CLOSING: its text fades out first (0.35s, no
+     delay), still at full width so nothing gets clipped. The moment
+     that's done (0.35s), max-height clamps straight back to 0 — before
+     flex-grow starts shrinking the panel — so the (now invisible) text
+     can never wrap into a tall column and inflate this item's height
+     while it's passing through narrow widths on the way down. */
+  transition:
+    opacity 0.2s ease,
+    flex-grow 0.5s cubic-bezier(.4, 0, .2, 1) 0.2s,
+    padding 0.5s ease 0.3s,
+    margin-left 0.5s ease 0.3s,
+    max-height 0s linear 0.3s;
+}
+
+.section--modulos.is-modules-expanded .module-detail {
+  flex-grow: 1;
+  max-height: none;
+  /* max-height is no longer 0 once expanded, so the base rule's
+     overflow:hidden (needed only to clamp the collapsed height, see
+     above) is no longer required here — and it was clipping the CTA
+     button's drop-shadow filter against the panel's own edge. */
+  overflow: visible;
+  height: calc(var(--modulos-expanded-height, 520px) - 40px);
+  margin: 10px 10px 10px 60px;
+  padding-top: 20px;
+  opacity: 1;
+  pointer-events: auto;
+  /* Literal mirror of the base .module-detail rule above (used on
+     close): there, opacity fades out first (0.2s, no delay), THEN
+     max-height clamps shut and flex-grow/padding shrink (0.5s, delayed
+     0.2s) while already invisible. Here that's reversed in both order
+     and direction: the panel grows in flex-grow/padding first (0.5s,
+     delayed 0.3s to match the siblings/card growth above) while still
+     invisible, max-height only opens right at the end of that growth
+     (0.8s), and opacity only starts fading in at that same instant,
+     over the same 0.2s duration the close side uses. */
+  transition:
+    flex-grow 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s,
+    padding 0.5s ease 0.3s,
+    margin-left 0.5s cubic-bezier(.4, 0, .2, 1) 0.3s,
+    max-height 0s linear 0.8s,
+    opacity 0.5s ease 0.8s;
+}
+
+/* Reuses .flip-nav's look (see -- 2. sobre --) for the module trail's
+   own prev/next controls — the buttons carry .flip-nav, .flip-nav--prev/
+   --next AND .module-nav, so they get the same size/hover/disabled
+   styling (and transitions) for free, untouched here; .module-nav only
+   adds the show/hide behaviour below. Hidden while the trail is
+   collapsed (all four cards sit side by side already, nothing to step
+   between).
+
+   .is-nav-visible (added/removed by script.js, NOT the same moment as
+   .is-modules-expanded) is what actually reveals the buttons: it's
+   added ~0.8s into expand(), in step with .module-detail's own opacity
+   fade-in (opacity 0.2s ease 0.8s below), so the buttons appear at the
+   same time as the detail panel instead of the instant the section
+   starts expanding. It's removed synchronously with .is-modules-expanded
+   on close, so the buttons disappear immediately, same as before.
+
+   Both visibility and opacity drive the show/hide: visibility handles
+   interactivity/layout (and is skipped for :disabled so the dimming
+   rule below still applies), opacity gives the actual fade — see the
+   opacity entry added to .flip-nav--prev/--next's own transition list
+   above, which is what animates it. */
+.module-nav {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.section--modulos.is-nav-visible .module-nav:not(:disabled) {
+  /* :not(:disabled) so this never fights with .flip-nav:disabled's own
+     opacity: 0 further up — a disabled button stays hidden instead
+     of snapping to full opacity while the nav is visible. */
+  opacity: 1;
+}
+
+.section--modulos.is-nav-visible .module-nav {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Carousel slide between two already-expanded modules, driven by the
+   prev/next buttons' step() in script.js. Deliberately separate from
+   the grid <-> expanded choreography above: .is-carousel-move is only
+   ever added/removed by script.js, for the short duration of a single
+   slide, and only ever touches the currently-visible card+detail pair
+   — the other three (already collapsed to width 0) are untouched.
+   The extra classes in each selector just outrank the rules above so
+   this transition wins for as long as .is-carousel-move is present. */
+.section--modulos.is-modules-expanded .module-card.is-expanded.is-carousel-move,
+.section--modulos.is-modules-expanded .module-detail.is-carousel-move {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.module-detail__title {
+  font-family: var(--font-hand);
+  font-size: clamp(24px, 3vw, 42px);
+  text-transform: uppercase;
+  color: var(--black);
+  line-height: 1.15;
+  padding-bottom: 15px;
+}
+
+.module-detail__text {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(15px, 1.6vw, 17px);
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  color: var(--black);
+}
+
+.module-detail__text p {
+  padding-bottom: 15px;
+}
+
+
+/* The last <p>/<ul> pair from a card's front face (script.js) lands
+   here, at the end of .module-detail__text — set off from the running
+   text above it with its own top margin rather than relying on
+   whatever bottom spacing the preceding element happens to have. */
+.module-detail__highlight {
+  margin-top: 20px;
+}
+
+.module-detail__highlight p{
+  font-family: var(--font-hand);
+  text-transform: uppercase;
+    font-size: 32px;
+}
+
+
+/* Everything above the footer (title + running text) lives in its own
+   wrapper so the gap below it is fixed and predictable, regardless of
+   whether the last thing script.js appends to .module-detail__text is
+   a <p> (which carries its own padding-bottom) or a <ul> (which
+   doesn't) — the space to the footer no longer depends on that. */
+.module-detail__body {
+  display: flex;
+  flex-direction: column;
+  /* .module-detail's own height already tracks the expanded card's
+     height (both read the same --modulos-expanded-height var set by
+     script.js), but that height was going to waste: .module-detail__body
+     was only ever as tall as its own content, so a module with a short
+     description left a gap of empty space between the footer and the
+     bottom of the panel instead of the footer sitting flush with it.
+     Stretching the body to fill .module-detail's full height and
+     space-between-ing its two children pins the content wrapper to the
+     top and the footer to the bottom regardless of how much text is in
+     between. */
+  height: 100%;
+  min-height: 0;
+  justify-content: space-between;
+}
+
+.module-detail__content {
+  margin-bottom: 28px;
+}
+
+/* The footer row holds only the CTA button; .module-detail__highlight
+   lives inside .module-detail__text instead (see above), so the
+   button sits on its own at the end of the row. Its own margin-top
+   has been dropped in favour of .module-detail__content's margin-bottom
+   above, so the gap above the footer is no longer doubled up when the
+   text block happens to end in a <p>. */
+.module-detail__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+/* Custom bullets instead of the native ::marker: enlarging a real
+   disc marker's font-size clips it against its own marker box in
+   Chrome/Safari (the box stays tied to the line's normal metrics), so
+   the dot gets cut off top and bottom instead of just growing. A
+   plain ::before square, sized in px and laid out via flex instead of
+   list-style, has no such box to be clipped by. Each module's PNG is
+   set via the ::before background-image in the four :has() rules
+   below instead of here, so this rule only holds the shared box size. */
+.module-detail__text ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.module-detail__text li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Base/fallback bullet for whenever no module-specific :has() rule
+   below is matched (shouldn't normally happen, since the panel is
+   only visible while some card is active). The four :has() rules near
+   the top of the file are what actually set each module's PNG bullet
+   in practice. */
+.module-detail__text li::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  background-image: url("../pics/dot-obesidade.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Rotate each bullet PNG by a different fixed angle so a repeated
+   image doesn't read as an obvious tiled pattern down the list. Cycle
+   of 6 angles, repeating via nth-child(6n+k) for lists longer than 6
+   items. */
+.module-detail__text li:nth-child(6n + 1)::before {
+  transform: rotate(0deg);
+}
+
+.module-detail__text li:nth-child(6n + 2)::before {
+  transform: rotate(60deg);
+}
+
+.module-detail__text li:nth-child(6n + 3)::before {
+  transform: rotate(120deg);
+}
+
+.module-detail__text li:nth-child(6n + 4)::before {
+  transform: rotate(180deg);
+}
+
+.module-detail__text li:nth-child(6n + 5)::before {
+  transform: rotate(240deg);
+}
+
+.module-detail__text li:nth-child(6n + 6)::before {
+  transform: rotate(300deg);
+}
+
+/* Same image-button treatment as .hero__actions .btn--image (see the
+   -- buttons -- block above), just sized down to fit the detail
+   panel's footer row and with a sideways hover nudge instead of an
+   upward one, to read as "go forward" rather than "lift off". The
+   actual image differs per module: script.js swaps detailCtaImg's
+   src/alt from each card's data-cta-image whenever that module
+   becomes active (expand()/slideCarousel()). */
+.module-detail__cta {
+  align-self: flex-end;
+  flex: 0 0 auto;
+}
+
+.module-detail__cta img {
+  height: 65px;
+  transition: filter 0.25s ease, opacity 0.2s ease;
+  filter: drop-shadow(#00000027 15px 10px 4px);
+}
+
+.module-detail__cta:hover img {
+  filter: drop-shadow(#00000027 15px 10px 4px) brightness(1.15) saturate(1.06);
+}
+
+.module-detail__cta:focus-visible {
+  outline: 3px solid var(--cyan-dark);
+  outline-offset: 3px;
+}

@@ -1,0 +1,131 @@
+/* ===========================================================
+   PERSISTENT TITLE IMAGE
+   Sits outside .swipe-section entirely (see index.html) so the
+   per-panel swipe animation — which animates opacity/transform on
+   each .section — never touches it. Fixed to the viewport and
+   layered above the header and every section, it stays visible
+   the same way across all six panels.
+=========================================================== */
+.site-title-image {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  /* Both the slide-up and the scale-down now live in one `transform`
+     (translate + scale) instead of animating `top`. `top` is a layout
+     property — the browser has to reflow on every step of the swipe
+     to recompute it. `transform` is compositor-only, so the browser
+     can animate it on its own thread with no reflow/repaint, which is
+     what actually matters for lag here since this fires on every
+     IntersectionObserver step while swiping.
+     --title-top is a unitless px number kept in sync with --title-scale
+     by initTitleImageScale() in script.js: 80 (== --header-h) at full
+     size, sliding to 20 by the time it's locked at MIN_SCALE. */
+  transform: translate(-50%, calc(var(--title-top, 80) * 1px)) scale(var(--title-scale, 1));
+  transform-origin: top center;
+  z-index: 25;
+  pointer-events: none;
+  padding-top: 0;
+  /* Hints the browser to promote this to its own compositor layer
+     up front, rather than doing it the first time it starts moving. */
+  will-change: transform;
+  /* Hidden until the homepage is revealed (entrance below). */
+  opacity: 0;
+  /* Individual `translate` property, stacked on top of the `transform`
+     above (which the swipe drives through --title-top/--title-scale).
+     Keeping the hide movement separate lets it use its own, slower
+     transition without touching the 0.15s one on `transform`. */
+  transition: transform 0.15s ease-out,
+    translate 0.75s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+/* Slides up out of view together with the header while the Famílias
+   panel is showing (toggled by swipe-panels.js). Same duration, same
+   curve and — via the shared --hide-y — the exact same distance as
+   .site-header.is-hidden, so the two move as one. */
+.site-title-image.is-hidden {
+  translate: 0 calc(-1 * var(--hide-y, 109px));
+}
+
+/* Posto por title-image.js só ao chegar de uma página de módulo (index.html#modulos): sem transições, para o logo
+   já aparecer na escala/posição/opacidade finais em vez de as animar a partir do estado do hero. */
+.site-title-image.is-instant,
+.site-title-image.is-instant * {
+  transition: none !important;
+}
+
+/* Entrance after loading — same fade and same scale-down, with the same
+   timing and curve, as .hero__ground (see heroGroundFade/heroGroundRise).
+   The fade goes on the wrapper (its own opacity is unused elsewhere);
+   the scale goes on the images through the individual `scale` property,
+   so it never touches the wrapper's `transform` (driven by
+   --title-top/--title-scale in script.js) or its `translate`. Keep the
+   durations/delays in sync with .hero__ground. */
+#homepage.is-visible:not(.entrance-done) .site-title-image {
+  animation: heroGroundFade 1s ease-out .25s both;
+}
+
+#homepage.is-visible:not(.entrance-done) .site-title-image img {
+  transform-origin: top center;
+  animation: titleImageScaleIn 1.8s cubic-bezier(.33, .1, .25, 1) .25s both;
+}
+
+@keyframes titleImageScaleIn {
+  from { scale: 1.4; }
+  to   { scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-title-image,
+  #homepage.is-visible:not(.entrance-done) .site-title-image {
+    opacity: 1;
+    animation: none;
+  }
+
+  #homepage.is-visible:not(.entrance-done) .site-title-image img {
+    animation: none;
+  }
+}
+
+.site-title-image img {
+  display: block;
+  height: auto;
+  /* Offset grows from 10px to 20px (blur stays 4px) as the title
+     locks into its small, top-pinned state — same --title-shadow-offset
+     var driven by initTitleImageScale() in script.js as --title-scale
+     and --title-top, so it tracks the same swipe progress. */
+  filter: drop-shadow(#00000027 calc(var(--title-shadow-offset, 10) * 1px) calc(var(--title-shadow-offset, 10) * 1px) 4px);
+  transition: filter 0.15s ease-out;
+}
+
+/* Base title image (titleHero.png): fades out as the title image
+   locks into its small, top-pinned state (see --title-base-opacity,
+   driven by initTitleImageScale() in script.js), while the logo
+   fades in over it via --title-logo-opacity above. --title-base-visible
+   switches to "hidden" (pulling it out of hit-testing/paint) once it's
+   fully faded, but back to "visible" instantly the moment progress
+   reverses — see the asymmetric delay in initTitleImageScale(), which
+   only delays the hide, never the show. */
+.site-title-image__base {
+  opacity: var(--title-base-opacity, 1);
+  visibility: var(--title-base-visible, visible);
+  transition: opacity 0.15s ease-out;
+}
+
+/* Logo: layered directly over the title image inside the same fixed,
+   scaling wrapper, so it automatically shares .site-title-image's
+   position/scale/top effects. It only adds its own opacity fade,
+   driven by the same swipe progress as --title-scale/--title-top (see
+   initTitleImageScale() in script.js): invisible on the hero, fading
+   in to fully visible by the time Frase is reached, and staying
+   visible from then on. object-fit: contain lets it overlay the base
+   image's exact footprint even though the two source images have
+   different aspect ratios. */
+.site-title-image__logo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: var(--title-logo-opacity, 0);
+  transition: opacity 0.15s ease-out;
+}

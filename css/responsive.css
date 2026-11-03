@@ -1,0 +1,124 @@
+/* -- homepage responsive -- */
+@media (max-width: 900px) {
+  .module-trail {
+    flex-wrap: wrap;
+    margin: 40px 24px 0;
+    gap: 28px;
+  }
+
+  .module-trail>.flip-nav--prev {
+    left: calc(-34px - 24px);
+  }
+
+  .module-trail>.flip-nav--next {
+    right: calc(-34px - 24px);
+  }
+
+  .module-card {
+    flex-basis: calc(50% - 14px);
+  }
+
+  .module-trail::before {
+    display: none;
+  }
+
+  /* Expanded state stacks instead of sitting side-by-side once the
+     viewport's too narrow for a left card + right text column. */
+  .section--modulos.is-modules-expanded .module-trail {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .section--modulos.is-modules-expanded .module-card.is-expanded {
+    flex-basis: auto;
+    width: 100%;
+    height: min(55vh, var(--modulos-expanded-height, 420px));
+  }
+
+  .section--modulos.is-modules-expanded .module-detail {
+    flex-basis: auto;
+    width: 100%;
+    height: auto;
+    padding: 4px 4px;
+  }
+
+  .bubble-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__globe {
+    opacity: 0.35;
+  }
+
+  .section--modulos .section__intro,
+  .section--conquistas .section__intro {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .section--modulos .section__title,
+  .section--conquistas .section__title {
+    text-align: center;
+  }
+
+  .site-header__inner,
+  .site-footer__row {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-nav,
+  .site-footer__nav {
+    gap: 12px;
+  }
+
+  .site-nav a,
+  .site-footer__nav a,
+  .site-footer__tagline {
+    font-size: 13px;
+  }
+
+  .module-trail {
+    margin: 32px 16px 0;
+  }
+
+  .module-trail>.flip-nav--prev {
+    left: calc(-34px - 16px);
+  }
+
+  .module-trail>.flip-nav--next {
+    right: calc(-34px - 16px);
+  }
+
+  .module-card {
+    flex-basis: 100%;
+  }
+
+  .hero__content {
+    margin-top: clamp(110px, 32vh, 180px);
+  }
+
+  .hero__inner {
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .hero__actions {
+    justify-content: center;
+  }
+
+  .hero__lead {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .badge-row {
+    gap: 16px;
+  }
+
+  .badge {
+    flex: 1 1 140px;
+    padding: 20px 14px;
+  }
+}

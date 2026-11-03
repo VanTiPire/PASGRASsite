@@ -1,0 +1,123 @@
+/* Entrada do jogo: dois planos.
+   Tutorial: os miúdos (football.gif) em primeiro plano, grandes. Ao clicar em "Começar" encolhem para o fundo
+   (posição pequena, ao centro) e, ao mesmo tempo, o banco e o caminho (pathGame.png) sobem de baixo, juntos e
+   maiores, e encolhem até ao tamanho/posição final. O chão (floorGame.png) fica sempre visível.
+   (jogo-banco.css não muda).
+   Estado: data-scene="tutorial" (por defeito) | "game" no #stage. A duração é única e vem de CONFIG.INTRO.MS (jogo-banco.js). */
+
+/* As transições (transition) estão só nas regras de [data-scene="game"]: assim só correm quando o jogo começa e
+   nunca durante o carregamento da página, quando as unidades cq ainda estão a assentar. */
+.jb-stage {
+  --jb-kids-ms: 1000ms;          /* duração dos miúdos a encolher (JS sobrepõe; igual à do banco) */
+  --jb-bench-ms: 1000ms;         /* duração do banco e do caminho a chegar (JS sobrepõe) */
+  --jb-ease: cubic-bezier(.65, 0, .35, 1);
+  --jb-kids-y: 90cqh;            /* tutorial: altura (do topo) onde ficam as sombras dos miúdos */
+  --jb-kids-far-y: 47cqh;        /* jogo: altura das sombras dos miúdos lá ao fundo (atrás do espaldar do banco) */
+  --jb-kids-far-scale: .20;      /* tamanho dos miúdos lá ao fundo (1 = tamanho do tutorial) */
+  --jb-bench-far-scale: 1.6;     /* tamanho do grupo banco + caminho quando começa a subir (>1 = maior; 1 = sem mudar) */
+  --jb-bench-end-scale: 1.46;    /* fim de jogo: tamanho do banco + caminho (o processo inverso da entrada, mas só até meio) */
+  --jb-bench-end-gap: 8;         /* fim de jogo: distância (px da imagem do chão) entre a base do banco e a base do cenário */
+}
+
+/* ===== Miúdos (pics/jogo-banco/football.gif, 1352x776) =====
+   Ancorados pelo ponto entre as duas sombras (48% / 80% da imagem): é à volta dele que encolhem. */
+.jb-kids {
+  position: absolute;
+  left: 50%;
+  top: var(--jb-kids-y);
+  height: min(95cqh, calc(100cqw * 776 / 1352));
+  width: auto;
+  max-width: none;
+  z-index: 45;                   /* tutorial: à frente do balão (.jb-tut-wrap, z-index 1); no jogo passa para trás do banco */
+  transform-origin: 48% 80%;
+  translate: -48% -80%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.jb-stage[data-scene="game"] .jb-kids {
+  translate: -48% calc(-80% + var(--jb-kids-far-y) - var(--jb-kids-y));
+  scale: var(--jb-kids-far-scale);
+  z-index: 1;                    /* no jogo ficam sempre atrás do banco (.jb-rise, z-index 2) */
+  transition:
+    translate var(--jb-kids-ms) var(--jb-ease),
+    scale var(--jb-kids-ms) var(--jb-ease),
+    z-index 0s linear calc(var(--jb-kids-ms) * .5);   /* só passam para trás do banco a meio do encolher */
+}
+
+/* ===== Banco + caminho: um só grupo (.jb-rise) que sobe de baixo e encolhe até ao tamanho normal =====
+   O banco e o caminho (pathGame.png, 1848x186, colado à base) estão dentro do mesmo grupo, por isso a translação
+   e a escala são EXATAMENTE as mesmas para os dois e a distância entre eles nunca muda. O grupo tem o tamanho do
+   cenário e a origem no centro da sua base. Ponto de partida: tudo (já com a escala) abaixo da base do cenário,
+   ou seja, o topo do banco (altura do banco + a altura a que ele está do fundo) fica à altura da base. */
+.jb-rise {
+  --jb-bench-h: calc(var(--jb-unit) * 305 * var(--jb-scene-scale) * var(--jb-bench-scale));
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-origin: 50% 100%;
+  pointer-events: none;          /* ocupa o cenário todo: não pode tapar os botões do tutorial */
+  translate: 0 calc((var(--jb-ground-h) * .5 + var(--jb-bench-h)) * var(--jb-bench-far-scale));
+  scale: var(--jb-bench-far-scale);
+}
+
+.jb-stage[data-scene="game"] .jb-rise {
+  translate: 0 0;
+  scale: 1;
+  transition:
+    translate var(--jb-bench-ms) var(--jb-ease),
+    scale var(--jb-bench-ms) var(--jb-ease);
+}
+
+/* ===== Fim de jogo: o processo inverso da entrada, mas só até meio =====
+   O banco + caminho voltam a crescer e a descer (como no início do jogo), mas ficam sempre visíveis, à frente do
+   balão do fim de jogo (que fica por trás do espaldar). A mesma transição da entrada trata do movimento.
+   Ao carregar em "Jogar outra vez" o JS põe data-bench="home" no #stage: esta regra deixa de se aplicar e o banco
+   começa logo a voltar ao seu lugar (sem esperar que o balão acabe de sair). */
+.jb-stage[data-screen="end"]:not([data-bench="home"]) .jb-rise {
+  /* A escala é feita a partir da base do cenário, por isso a base do banco (que está a 50% da altura do chão)
+     sobe para 50% x altura do chão x escala. Desce-se exatamente esse valor menos --jb-bench-end-gap: os pés do
+     banco ficam colados à base do cenário, e o espaldar fica à altura que se vê na imagem de referência. */
+  translate: 0 calc(var(--jb-ground-h) * .5 * var(--jb-bench-end-scale) - var(--jb-unit) * var(--jb-bench-end-gap));
+  scale: var(--jb-bench-end-scale);
+}
+
+/* Caminho: colado à base do grupo, com a largura toda */
+.jb-path {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  aspect-ratio: 1848 / 186;
+  background: url("../pics/jogo-banco/pathGame.png") no-repeat center / 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .jb-stage[data-scene="game"] .jb-kids,
+  .jb-stage[data-scene="game"] .jb-rise {
+    transition: none;
+  }
+}
+
+/* ===== Só mostrar o jogo depois de o layout assentar =====
+   Ao abrir a página, fontes, imagens e unidades cq ainda estão a assentar, e o painel de início (e o resto) podia
+   aparecer a deslocar-se desde o canto. Até o JS pôr .jb-ready no .jb-page (fontes carregadas + 2 frames), o cenário
+   fica invisível, sem transições, e a moldura espera para crescer; depois aparece com um fade curto. */
+.jb-page:not(.jb-ready) .jb-stage {
+  opacity: 0;
+}
+
+.jb-page:not(.jb-ready) .jb-frame {
+  animation-play-state: paused;
+}
+
+.jb-page:not(.jb-ready) * {
+  transition: none !important;
+}
+
+.jb-page.jb-ready .jb-stage {
+  opacity: 1;
+  transition: opacity .3s ease-out;
+}

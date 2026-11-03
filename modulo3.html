@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulos – Apanha-os antes de se sentarem</title>
+
+  <!-- Mesmos estilos base / navbar do index.html -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/buttons.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Logo fixo (estado final do título do index.html) -->
+  <link rel="stylesheet" href="css/title-image.css">
+  <link rel="stylesheet" href="css/title-image-static.css">
+
+  <!-- Estilos do mini-jogo (todas as classes começam por jb-) -->
+  <link rel="stylesheet" href="css/jogo-banco.css">
+  <!-- Entrada do jogo: miúdos em primeiro plano -> banco (transição) -->
+  <link rel="stylesheet" href="css/jogo-banco-intro.css">
+</head>
+
+<body>
+
+
+  <!-- LOGO — mesmo elemento do index.html, já fixo no estado final -->
+  <div class="site-title-image site-title-image--static">
+    <img src="pics/titleHero.png" alt="" class="site-title-image__base" aria-hidden="true">
+    <img src="pics/logoNegativo.png" alt="1 vida saudável de forma divertida" class="site-title-image__logo">
+  </div>
+
+  <!-- NAVBAR — igual à do index.html (apenas o item ativo e os links mudam) -->
+  <header class="site-header" id="siteHeader">
+    <div class="site-header__inner">
+      <nav class="site-nav" aria-label="Navegação principal">
+        <a href="index.html">Inîcio</a>
+        <a href="sobre.html">Sobre</a>
+        <a href="index.html#modulos">Môdulos</a>
+        <a href="conquistas.html">Conquistas</a>
+      </nav>
+      <div class="site-header__actions">
+        <a href="#" class="btn btn--image">
+          <img src="pics/btnAcessibilidade.png" alt="Acessibilidade">
+        </a>
+        <a href="#" class="btn btn--image">
+          <img src="pics/btnInfo.png" alt="Info">
+        </a>
+        <a href="#jogo" class="btn btn--image btn--comecar">
+          <img src="pics/btnComecarNav.png" alt="Começar a aventura">
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MINI-JOGO -->
+  <!-- Secção do jogo: ocupa o ecrã todo (como as secções do index) e tem contorno -->
+  <main class="jb-page" id="jogo">
+    <div class="jb-wrap">
+      <!-- data-screen: "start" | "playing" | "end" controla que painel está visível -->
+      <div class="jb-frame">
+      <div id="stage" class="jb-stage" data-screen="start" data-scene="tutorial">
+
+        <!-- CENÁRIO (pode ser redesenhado sem tocar na lógica) -->
+        <div class="jb-scene" aria-hidden="true">
+          <div class="jb-sky"></div>
+          <div class="jb-ground"></div>
+          <!-- Miúdos do tutorial (encolhem para o fundo quando o jogo começa) -->
+          <img class="jb-kids" src="pics/jogo-banco/football.gif" alt="">
+          <!-- Banco + caminho: sobem de baixo juntos (mesma translação e escala) -->
+          <div class="jb-rise">
+            <div class="jb-path"></div>
+            <div id="bench" class="jb-bench">
+              <div id="bench-seat" class="jb-bench-seat"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camada onde o JavaScript coloca as personagens -->
+        <div id="people" class="jb-people-layer"></div>
+
+        <!-- INTERFACE -->
+        <div class="jb-hud">
+          <div id="score-box" class="jb-sign">Pontos <strong id="score">0</strong></div>
+          <div class="jb-sign">Melhor <strong id="best">0</strong></div>
+          <button id="restart-btn" class="jb-btn jb-btn-small" type="button" disabled>Reiniciar</button>
+          <!-- Título: na barra de cima, alinhado com a pontuação e as restantes opções (só visível no tutorial) -->
+          <h1 id="tut-title" class="jb-tut-title"><img src="pics/jogo-banco/tituloGame.png" alt="Sit Happens"></h1>
+          <div id="lives" class="jb-sign jb-lives" aria-label="Vidas"></div>
+        </div>
+
+        <div id="start-panel" class="jb-tut-wrap">
+          <section class="jb-tut-card" aria-labelledby="tut-title">
+
+          <!-- TUTORIAL: um slide de cada vez (a lógica está no fim de jogo-banco.js) -->
+          <div id="tut-slides" class="jb-slides" aria-live="polite">
+            <article class="jb-slide is-active">
+              <p>Num parque cheio de gente, há um banco com três lugares e uma regra simples:<br><strong> ninguém se pode sentar!</strong></p>
+              <p></p>
+            </article>
+            <article class="jb-slide">
+              <p>Clica nas pessoas que se aproximam do banco para as impedires de se sentar.</p>
+              <p>Por cada pessoa que acertas, <strong>ganhas 1 ponto.</strong></p>
+            </article>
+            <article class="jb-slide">
+              <p>Começas com 3 vidas.</p>
+              <p>Por cada pessoa que se sentar, <strong>perdes 1 vida.</strong> Se perderes as 3 vidas, o jogo termina.</p>
+            </article>
+            <article class="jb-slide">
+              <p><strong>Atenção!</strong></p>
+              <p>Se acertares em alguém que esteja a fazer exercício físico, <strong>perdes 1 ponto.</strong></p>
+            </article>
+            <article class="jb-slide">
+              <p>Mantém o banco livre, acumula o máximo de pontos e tenta sobreviver o maior tempo possível. <strong>Estás preparado?</strong></p>
+            </article>
+          </div>
+
+          <!-- Navegação: Anterior | pontos | Próximo (no último slide, "Começar" ocupa o lugar do Próximo) -->
+          <div class="jb-tut-nav">
+            <button id="tut-prev" class="jb-img-btn" type="button" aria-label="Slide anterior">
+              <img src="pics/jogo-banco/btnAnterior.png" alt="Anterior">
+            </button>
+            <div id="tut-dots" class="jb-dots" role="group" aria-label="Slides do tutorial"></div>
+            <button id="tut-next" class="jb-img-btn" type="button" aria-label="Slide seguinte">
+              <img src="pics/jogo-banco/btnProximo.png" alt="Próximo">
+            </button>
+            <button id="start-btn" class="jb-img-btn" type="button" aria-label="Começar" hidden>
+              <img src="pics/jogo-banco/btnComecarGame.png" alt="Começar">
+            </button>
+          </div>
+        </section>
+        </div>
+
+        <!-- FIM DE JOGO: mesmo balão do tutorial -->
+        <div id="end-panel" class="jb-tut-wrap">
+          <section class="jb-tut-card" aria-labelledby="end-quip">
+            <div class="jb-end">
+              <p class="jb-final"><span id="end-quip"></span> Acertaste em <strong><span id="end-score">0</span> <span id="end-score-unit">pessoas</span>!</strong></p>
+              <p>A tua melhor pontuação foi <strong><span id="end-best">0</span> <span id="end-best-unit">pontos</span>.</strong><br><span id="end-note"></span></p>
+            </div>
+            <div class="jb-end-nav">
+              <button id="again-btn" class="jb-img-btn" type="button" aria-label="Jogar outra vez">
+                <img src="pics/jogo-banco/btnJogar.png" alt="Jogar outra vez">
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+        <!-- Contorno (pics/jogo-banco/stroke.png) -->
+        <span class="jb-edge jb-edge-t"></span><span class="jb-edge jb-edge-b"></span>
+        <span class="jb-edge jb-edge-l"><i></i></span><span class="jb-edge jb-edge-r"><i></i></span>
+      </div><!-- /jb-frame -->
+    </div>
+  </main>
+
+  <script src="js/jogo-banco.js"></script>
+</body>
+
+</html>

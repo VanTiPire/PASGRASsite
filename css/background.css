@@ -1,0 +1,62 @@
+/* The ONE scrolling background (background.png): a single fixed element behind
+   both the loading screen and the homepage, so it runs uninterrupted across the
+   handoff.
+   PERF: the scroll used to animate `background-position` on a full-screen element
+   (a repaint of the whole screen every frame). It now moves a wider strip with
+   `transform` (compositor-only, no repaint), and js/background.js pauses it
+   (.is-paused) whenever the hero is not the current panel, because every other
+   panel completely covers it. */
+.scrolling-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  animation: heroGroundFade .4s ease-out both;
+}
+
+.scrolling-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /* viewport + exactly one tile, so the strip can slide one tile left seamlessly */
+  width: calc(100vw + var(--bg-width));
+  background: url("../pics/background.png") repeat-x bottom left / auto 100%;
+  will-change: transform;
+  animation: heroScroll 60s linear infinite;
+}
+
+.scrolling-bg.is-paused::before {
+  animation-play-state: paused;
+}
+
+@keyframes heroScroll {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(calc(var(--bg-width) * -1), 0, 0); }
+}
+
+/* ===========================================================
+   SECTION BACKGROUNDS (mouse parallax)
+   .section__bg is a clipping box covering the section, behind its
+   content (same layer the ::before backgrounds used to be on). The
+   picture itself is its ::before, drawn --bg-bleed px larger on every
+   side so it can be moved by the mouse (--bg-x / --bg-y, written by
+   initParallax() in script.js) without ever exposing an edge. The
+   clipping box is what keeps that bleed from adding scrollable
+   overflow to the panel. The per-section rules further down only set
+   the picture and its filter.
+=========================================================== */
+.section__bg {
+  --bg-bleed: 40px; /* must stay > the largest parallax travel (MAX_X * BG_DEPTH) */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.section__bg::before {
+  translate: var(--bg-x, 0px) var(--bg-y, 0px);
+}

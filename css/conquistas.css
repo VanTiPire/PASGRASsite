@@ -1,0 +1,178 @@
+.section--conquistas {
+  position: relative;
+  z-index: 2;
+
+  /* Base resting filter, matching Módulos' own resting look
+     (--modulos-brightness/--modulos-saturate), so Conquistas isn't
+     just full brightness by default. */
+  --conquistas-sepia: 0%;
+  --conquistas-hue: 0deg;
+  --conquistas-saturate: 1.06;
+  --conquistas-brightness: 0.65;
+  --conquistas-contrast: 1;
+
+  /* Overlay matching whichever Módulos card is active, mirroring
+     --sobre-active-* on .section--sobre. Identity (no-op) at rest —
+     it only has a value while mid-swipe between Módulos and
+     Conquistas, animated by js/swipe-panels.js. */
+  --conquistas-active-sepia: 0%;
+  --conquistas-active-hue: 0deg;
+  --conquistas-active-saturate: 1;
+  --conquistas-active-brightness: 1;
+  --conquistas-active-contrast: 1;
+}
+
+.section--conquistas .section__bg::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--bg-bleed) * -1);
+
+  background-image: url("../pics/questSection.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter:
+    sepia(var(--conquistas-sepia)) hue-rotate(var(--conquistas-hue)) saturate(var(--conquistas-saturate)) brightness(var(--conquistas-brightness)) contrast(var(--conquistas-contrast)) sepia(var(--conquistas-active-sepia)) hue-rotate(var(--conquistas-active-hue)) saturate(var(--conquistas-active-saturate)) brightness(var(--conquistas-active-brightness)) contrast(var(--conquistas-active-contrast));
+
+  z-index: -1;
+}
+
+/* -- 4. conquistas -- */
+.badge-row {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  flex: 1 1 200px;
+  border-radius: 16px;
+  padding: 26px 20px;
+  text-align: center;
+}
+
+.badge img {
+  width: 30px;
+  margin-bottom: 12px;
+}
+
+.badge span {
+  display: block;
+  font-family: var(--font-hand);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 32px;
+  color: var(--green);
+}
+
+/* Button under each badge: the same image button as the hero's
+   "Começar a aventura" (.hero__actions .btn--image, see -- buttons --),
+   repeated here because that rule is scoped to .hero__actions. */
+.badge .btn--image {
+  margin-top: 20px;
+}
+
+.badge .btn--image img {
+  /* cancels .badge img (30px icon) for the button image */
+  width: auto;
+  margin-bottom: 0;
+  height: 65px;
+  transition: transform 0.25s ease, filter 0.25s ease, opacity 0.2s ease;
+  filter: drop-shadow(#00000027 15px 10px 4px);
+}
+
+.badge .btn--image:hover img {
+  filter: drop-shadow(#00000027 15px 10px 4px) brightness(1.15) saturate(1.06);
+}
+
+/* Hand that slides across Conquistas with the badges
+   (pics/slide-hand.png, transparent PNG, arm cut off at the bottom of
+   the image). Full screen height and pinned to the bottom, like the
+   other hands; the clip box hides it while it is off-screen and stops it
+   from widening the (scrollable) panel. Hidden until
+   addConquistasBadges() plays. GSAP animates its `x`, so don't position
+   it with `transform`. */
+.conquistas-hand-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.conquistas-hand {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100vh;
+  height: 100svh;
+  width: auto;
+  visibility: hidden;
+  user-select: none;
+}
+
+/* -- Conquistas: badge layout -- */
+.badge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(260px, 38vh, 400px);
+}
+
+/* Random stickers (built by initRandomBadgeStickers() in script.js).
+   ONE div as wide as the badge row and taller than it, laid over it; the pictures are placed
+   inside it at random (left / top / width / rotation are set in JS).
+   It never catches clicks. It starts fully clipped and is uncovered by the
+   hands with the same edges as the badges (addConquistasHand() in
+   swipe-panels.js), which then sets clip-path: none. */
+.badge-row {
+  position: relative;
+}
+
+.badge-row__stickers {
+  --stickers-extra: 160px;  /* how much taller than the row (all of it below the row) */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;                   /* top edge aligned with the top of the badge row */
+  bottom: calc(-1 * var(--stickers-extra));
+  z-index: 2;               /* over the badges; use -1 / 0 to go behind them */
+  pointer-events: none;
+  clip-path: inset(100%);   /* fully hidden until the hands uncover it, like the badges */
+}
+
+/* Set by script.js while the mouse is over a visible part of a sticker: the
+   badges' buttons ignore the mouse there (no hover, no click), because the
+   sticker is covering them. */
+.badge .btn.is-covered {
+  pointer-events: none;
+}
+
+.badge-row__sticker {
+  /* Wrapper of one sticker: position, size, push and shadow live here
+     (set in JS); only the picture inside is rotated, so the drop shadow
+     is NOT rotated with it and always falls the same way. */
+  position: absolute;
+  margin: 0;
+  user-select: none;
+  /* The mouse push (set in JS, 20px away from the mouse, and it stays) uses the
+     separate `translate` property, so it doesn't touch the sticker's position. */
+  translate: 0px 0px;
+  transition: translate 0.35s ease-out;
+  filter: drop-shadow(#00000059 4px 4px 3px);
+}
+
+.badge-row__sticker img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 50%;
+}
+
+/* The badges start fully clipped; addConquistasHand() (swipe-panels.js)
+   uncovers them in sync with the hands and then sets clip-path: none. */
+.section--conquistas .badge {
+  clip-path: inset(100%); /* fully hidden until the hands uncover it */

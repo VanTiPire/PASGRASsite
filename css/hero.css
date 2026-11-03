@@ -1,0 +1,325 @@
+/* -- 1. hero -- */
+.hero__ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+
+  /* Entrance after loading: hidden until the homepage is revealed
+     (#homepage.is-visible, added by loading.js), then it fades in,
+     rises and scales down to its normal size. Opacity and transform
+     run as two separate keyframe animations so the transform can be
+     much slower than the fade. */
+  opacity: 0;
+  transform-origin: center bottom;
+}
+
+#homepage.is-visible:not(.entrance-done) .hero__ground {
+  animation:
+    heroGroundFade 0.5s ease-out .25s both,
+    heroGroundRise 1.8s cubic-bezier(.33, .1, .25, 1) .25s both;
+}
+
+@keyframes heroGroundFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes heroGroundRise {
+  from {
+    transform: translateY(160px) scale(1.4);
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .hero__ground,
+  #homepage.is-visible:not(.entrance-done) .hero__ground {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* leftSection.png: shares every .hero__ground attribute (same box, z-index,
+   hidden start, origin) — it's the same class plus this modifier. It stacks
+   behind heroSection.png because it comes before it in the HTML. Same fade,
+   duration, delay and curve as the hero picture; only the travel differs:
+   it slides in from off-screen left (-100% of its own width) while scaling
+   down 1.4 -> 1, like the hero, instead of rising from below. */
+#homepage.is-visible:not(.entrance-done) .hero__ground--left {
+  transform-origin: center top;
+  animation:
+    heroGroundFade 1s ease-out .15s both,
+    heroLeftSlide 1.8s cubic-bezier(.33, .1, .25, 1) .25s both;
+}
+
+@keyframes heroLeftSlide {
+  from {
+    transform: translateX(-50%) scale(1.4);
+  }
+
+  to {
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* rightSection.png: mirror of leftSection.png (same attributes, same
+   timing, center top origin), sliding in from off-screen right. */
+#homepage.is-visible:not(.entrance-done) .hero__ground--right {
+  transform-origin: center top;
+  animation:
+    heroGroundFade 1s ease-out .25s both,
+    heroRightSlide 1.8s cubic-bezier(.33, .1, .25, 1) .25s both;
+}
+
+@keyframes heroRightSlide {
+  from {
+    transform: translateX(50%) scale(1.4);
+  }
+
+  to {
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* left2Section.png / right2Section.png (the z1 layers): same start and fade
+   as left/right, but their slide takes longer. Order matches the animation
+   list: fade, slide. Only animation-duration is overridden, so the
+   reduced-motion rule below still wins. Change --hero-z1-slide to tune it. */
+#homepage.is-visible:not(.entrance-done) .hero__ground--z1.hero__ground--left,
+#homepage.is-visible:not(.entrance-done) .hero__ground--z1.hero__ground--right {
+  --hero-z1-slide: 2.2s;
+  animation-duration: 1s, var(--hero-z1-slide);
+}
+
+/* hero3Section.png (z0, backmost): same start and fade as the other hero
+   layers, but its movement (heroGroundRise) takes longer. Order matches the
+   animation list: fade, rise. Change --hero-z0-rise to tune it. */
+#homepage.is-visible:not(.entrance-done) .hero__ground--z0 {
+  --hero-z0-rise: 2.2s;
+  animation-duration: 1s, var(--hero-z0-rise);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  #homepage.is-visible:not(.entrance-done) .hero__ground--left,
+  #homepage.is-visible:not(.entrance-done) .hero__ground--right {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* Hero image stack. The wrapper is one stacking context at the same level
+   the loose images used to have (z-index 0); inside it each image has an
+   explicit z-index, so the depth no longer depends on HTML order.
+   Back -> front: z0 hero3, z1 left2/right2, z2 hero2, z3 left/right, z4 hero. */
+.hero__layers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  /* Height-based sizing, like the globe / runner on the loading screen:
+     every layer is exactly as tall as the viewport, and its width follows
+     from the image's own aspect ratio. All layers share one grid cell,
+     centred horizontally and anchored to the bottom; when the window is
+     narrower than the image, the extra width is cropped equally on both
+     sides (overflow: hidden also stops it from creating a horizontal
+     scrollbar inside the panel). */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 100%;
+  justify-items: center;
+  align-items: end;
+  overflow: hidden;
+
+  /* How far each layer extends above the top of the viewport. The mouse
+     parallax in script.js only ever moves the layers DOWN, by up to
+     2 * MAX_Y (20px for the front layer), which would otherwise reveal
+     the images' top edge. Keep this >= 2 * MAX_Y in initHeroParallax(). */
+  --hero-overscan: 24px;
+}
+
+.hero__layers .hero__ground {
+  position: relative;
+  grid-area: 1 / 1;
+  /* Viewport height + overscan; the extra sits above the top edge because
+     the layers are bottom-anchored (align-items: end). */
+  height: calc(100% + var(--hero-overscan));
+  width: auto;
+  /* Safety net for windows wider than the image's height-fitted width:
+     the box never gets narrower than the viewport, and object-fit keeps
+     the picture undistorted (it then scales up to cover, bottom-anchored),
+     so the parallax never exposes an empty edge. */
+  min-width: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+.hero__layers .hero__ground--z0 {
+  z-index: 0;
+}
+
+.hero__layers .hero__ground--z1 {
+  z-index: 1;
+}
+
+.hero__layers .hero__ground--z2 {
+  z-index: 2;
+}
+
+.hero__layers .hero__ground--z3 {
+  z-index: 3;
+}
+
+.hero__layers .hero__ground--z4 {
+  z-index: 4;
+}
+
+/* Navbar and hero button: same fade-in as .hero__ground (same duration
+   and delay), reusing its heroGroundFade keyframes. Opacity only — the
+   header's own `transform` (hide on Famílias) is left untouched. The hero
+   button is scoped to .section--hero so the identical .hero__actions in
+   Frase and Família are not affected. */
+.site-header,
+.section--hero .hero__actions {
+  opacity: 0;
+}
+
+#homepage.is-visible:not(.entrance-done) .site-header,
+#homepage.is-visible:not(.entrance-done) .section--hero .hero__actions {
+  /* Delayed so they appear after the hero picture and title image
+     have started their entrance. */
+  animation: heroGroundFade .5s ease-out 2.2s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .site-header,
+  .section--hero .hero__actions,
+  #homepage.is-visible:not(.entrance-done) .site-header,
+  #homepage.is-visible:not(.entrance-done) .section--hero .hero__actions {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+
+/* ===========================================================
+   ENTRANCE DONE
+   loading.js adds .entrance-done to #homepage once the hero
+   entrance (layers, title image, navbar, hero button) has
+   finished playing. Every entrance animation above is scoped to
+   :not(.entrance-done), so from then on the animations are gone
+   and these static end states take over — resizing the window
+   (or anything else that makes the browser re-evaluate styles)
+   can no longer replay the intro.
+=========================================================== */
+/* Transform origins that used to live only inside the entrance rules.
+   They must outlive the entrance: the parallax scale in script.js pivots
+   on them, so dropping them would make the layers jump after the intro. */
+.hero__ground--left,
+.hero__ground--right {
+  transform-origin: center top;
+}
+
+.site-title-image img {
+  transform-origin: top center;
+}
+
+#homepage.entrance-done .hero__ground,
+#homepage.entrance-done .site-header,
+#homepage.entrance-done .section--hero .hero__actions,
+#homepage.entrance-done .site-title-image {
+  opacity: 1;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: top;
+  justify-content: space-between;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+
+}
+
+.hero__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--header-h);
+}
+
+.hero__image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero__image img {
+  height: 100vh;
+  width: auto;
+  max-width: none;
+  display: block;
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-bottom: 100px;
+  /* .hero__title-image used to be the sibling before this that
+     space-between pushed .hero__actions down against; now that the
+     title image lives outside .hero__content (see .site-title-image),
+     margin-top: auto keeps the actions pinned to the bottom on its own. */
+  margin-top: auto;
+}
+
+.hero__title {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--green);
+  text-transform: uppercase;
+  font-size: clamp(42px, 6vw, 70px);
+  margin-bottom: 35px;
+}
+
+.hero__title span {
+  color: var(--black);
+}
+
+.hero__lead {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.6;
+  color: var(--black);
+  max-width: 560px;
+  margin-bottom: 35px;
+}

@@ -1,0 +1,92 @@
+.section--statement {
+  /* Resting (normal/undimmed) values. During the statement<->sobre
+     swipe, js/swipe-panels.js animates these in sync with sobre's
+     own --sobre-* vars, so both panels' filters shift together —
+     see addFilterContinuity() there. */
+  --statement-brightness: 1;
+  --statement-saturate: 1;
+}
+
+.section--statement .section__bg::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--bg-bleed) * -1);
+
+  background-image: url("../pics/phraseSection.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter: brightness(var(--statement-brightness)) saturate(var(--statement-saturate));
+
+  z-index: -1;
+}
+
+.section--statement .statement {
+  color: var(--green-light);
+}
+
+/* Starting position/size only — the left-to-right flight itself
+   (transform + transition) is added by js/title-wave.js so it can be
+   timed to the panel-enter event. */
+.statement-apple {
+  position: absolute;
+  top: 0;      /* set at runtime by js/title-wave.js, matching the statement h2's own top/height */
+  left: 0;
+  width: auto;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+  /* Same drop shadow as the flipbook (.sj-book in flip.css). It sits on the
+     wrapper, which only translates; the <img> inside is the one that spins.
+     A filter is applied after the children's transforms, so the shadow
+     follows the apple's outline but keeps its fixed 15px/10px direction. */
+  filter: drop-shadow(#00000059 15px 10px 4px);
+}
+
+.statement-apple img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+/* The broccoli is a second .statement-apple (same size logic, same flight and
+   spin, same drop shadow — all driven by js/title-wave.js); it only needs to
+   sit above the apple. */
+.statement-broccoli {
+  z-index: 3;
+}
+
+/* The mushroom is a third .statement-apple (same flight, spin and shadow);
+   it sits above the other two. Size and timing live in FLYERS in js/title-wave.js. */
+.statement-mushroom {
+  z-index: 4;
+}
+
+.section--statement .section__inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(24px, 5vh, 48px);
+  text-align: center;
+}
+
+/* .hero__actions carries padding-bottom: 100px and margin-top: auto so
+   it can pin itself to the bottom of the hero. Here it just sits under
+   the phrase, so both are cancelled. */
+.section--statement .hero__actions {
+  padding-bottom: 0;
+  margin-top: 0;
+}
+
+.statement {
+  padding-top:45px;
+  font-family: var(--font-hand);
+  font-size: clamp(42px, 6vw, 62px);
+  line-height: 1.15;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-transform: uppercase;
+  color: var(--black);
+}

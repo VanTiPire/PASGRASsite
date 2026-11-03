@@ -1,0 +1,18 @@
+/* ===========================================================
+   LOGO FIXO NAS PÁGINAS DE MÓDULO
+   Reproduz o estado final do .site-title-image do index.html
+   (escala 0.2, top 15px, logo visível, título base escondido),
+   sem o JS do swipe. Carregar DEPOIS de title-image.css.
+   O título base fica no HTML só para o wrapper ter a mesma
+   área que no index (o logo usa object-fit: contain sobre ela).
+=========================================================== */
+.site-title-image--static {
+  --title-top: 15;
+  --title-scale: 0.2;
+  --title-shadow-offset: 30;
+  --title-logo-opacity: 1;
+  --title-base-opacity: 0;
+  --title-base-visible: hidden;
+  /* title-image.css deixa o wrapper a opacity 0 até a homepage ser revelada */
+  opacity: 1;
+}

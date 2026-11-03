@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alimentação – Corta o que é saudável</title>
+
+  <!-- Mesmos estilos base / navbar do index.html -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/buttons.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Logo fixo (estado final do título do index.html) -->
+  <link rel="stylesheet" href="css/title-image.css">
+  <link rel="stylesheet" href="css/title-image-static.css">
+
+  <!-- Moldura, contorno, HUD, painéis e botões (jb-*) partilhados com o outro mini-jogo -->
+  <link rel="stylesheet" href="css/jogo-banco.css">
+  <!-- Estilos próprios deste jogo (jf-*) -->
+  <link rel="stylesheet" href="css/jogo-fruta.css">
+</head>
+
+<body>
+
+  <!-- LOGO — mesmo elemento do index.html, já fixo no estado final -->
+  <div class="site-title-image site-title-image--static">
+    <img src="pics/titleHero.png" alt="" class="site-title-image__base" aria-hidden="true">
+    <img src="pics/logoNegativo.png" alt="1 vida saudável de forma divertida" class="site-title-image__logo">
+  </div>
+
+  <!-- NAVBAR — igual à do index.html (apenas o item ativo e os links mudam) -->
+  <header class="site-header" id="siteHeader">
+    <div class="site-header__inner">
+      <nav class="site-nav" aria-label="Navegação principal">
+        <a href="index.html">Inîcio</a>
+        <a href="sobre.html">Sobre</a>
+        <a href="index.html#modulos">Môdulos</a>
+        <a href="conquistas.html">Conquistas</a>
+      </nav>
+      <div class="site-header__actions">
+        <a href="#" class="btn btn--image">
+          <img src="pics/btnAcessibilidade.png" alt="Acessibilidade">
+        </a>
+        <a href="#" class="btn btn--image">
+          <img src="pics/btnInfo.png" alt="Info">
+        </a>
+        <a href="#jogo" class="btn btn--image btn--comecar">
+          <img src="pics/btnComecarNav.png" alt="Começar a aventura">
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MINI-JOGO: Alimentação -->
+  <main class="jb-page" id="jogo">
+    <div class="jb-wrap">
+      <div class="jb-frame">
+        <!-- data-screen: "start" | "playing" | "end" controla que painel está visível -->
+        <div id="stage" class="jb-stage" data-screen="start" data-scene="tutorial">
+
+          <div class="jf-bg" aria-hidden="true"></div>
+
+          <!-- Fundo do tutorial: creme (atrás do balão) -->
+          <div class="jf-intro" aria-hidden="true"></div>
+
+          <!-- Portal (elipse): num plano à frente do balão do tutorial. Ao carregar em "Começar" expande-se até deixar de se ver.
+               A mitocôndria que está lá dentro vê-se enquanto o portal cresce, cortada pela elipse. -->
+          <div class="jf-portal" aria-hidden="true">
+            <div class="jf-ellipse"><img class="jf-mito jf-mito--portal" src="pics/jogo-fruta/mitocondria.png" alt="" draggable="false"></div>
+          </div>
+
+          <!-- Mitocôndria (pics/jogo-fruta/mitocondria.png), a 30% do topo. Está em DOIS sítios, na mesma posição:
+               1) dentro da elipse do portal (ver acima): vê-se enquanto o portal cresce, cortada pela elipse;
+               2) aqui, por baixo do portal: aparece quando o portal desvanece e fica durante o jogo. -->
+          <img id="jf-mito" class="jf-mito" src="pics/jogo-fruta/mitocondria.png" alt="" aria-hidden="true" draggable="false">
+          <!-- Libertação de energia (anel + faíscas), desenhada pelo JavaScript quando se corta um alimento saudável -->
+          <div id="jf-energy" class="jf-energy" aria-hidden="true"></div>
+
+          <!-- Onde o JavaScript desenha os alimentos, o rasto da lâmina, etc. -->
+          <canvas id="jf-canvas" class="jf-canvas" aria-label="Zona de jogo: desliza para cortar os alimentos"></canvas>
+          <div id="flash" class="jf-flash" aria-hidden="true"></div>
+
+          <!-- INTERFACE -->
+          <div class="jb-hud">
+            <div id="score-box" class="jb-sign">Pontos <strong id="score">0</strong></div>
+            <div class="jb-sign">Melhor <strong id="best">0</strong></div>
+            <button id="restart-btn" class="jb-btn jb-btn-small" type="button" disabled>Reiniciar</button>
+            <button id="sound-btn" class="jb-btn jb-btn-small" type="button" aria-pressed="true">Som: ligado</button>
+            <!-- Título: sempre visível, na barra de cima (mesma posição do jogo do banco) -->
+            <h1 class="jb-tut-title"><span class="jf-title-text">Corta o que é saudável</span></h1>
+            <div id="lives" class="jb-sign jf-lives" aria-label="Vidas"></div>
+          </div>
+
+          <!-- TUTORIAL: um slide de cada vez (a lógica está em jogo-fruta.js) -->
+          <div id="start-panel" class="jb-tut-wrap">
+            <section class="jb-tut-card" aria-label="Como jogar">
+              <div id="tut-slides" class="jb-slides" aria-live="polite">
+                <article class="jb-slide is-active">
+                  <p>Desliza o rato para cortar os alimentos saudáveis.</p>
+                  <p>Por cada alimento que cortas, <strong>ganhas 1 ponto.</strong></p>
+                </article>
+                <article class="jb-slide">
+                  <p>Se deixares cair algum alimento saudável sem o cortares, <strong>perdes 1 ponto.</strong></p>
+                </article>
+                <article class="jb-slide">
+                  <p><strong>Atenção!</strong></p>
+                  <p>Se cortares comida menos saudável, como o hambúrguer, <strong>perdes 1 vida.</strong> Tens 3 vidas: acabando as vidas, o jogo termina.</p>
+                </article>
+                <article class="jb-slide">
+                  <p>Corta o máximo de alimentos saudáveis e foge da comida pouco saudável. <strong>Estás preparado?</strong></p>
+                </article>
+              </div>
+
+              <!-- Navegação: Anterior | pontos | Próximo (no último slide, "Começar" ocupa o lugar do Próximo) -->
+              <div class="jb-tut-nav">
+                <button id="tut-prev" class="jb-img-btn" type="button" aria-label="Slide anterior">
+                  <img src="pics/jogo-banco/btnAnterior.png" alt="Anterior">
+                </button>
+                <div id="tut-dots" class="jb-dots" role="group" aria-label="Slides do tutorial"></div>
+                <button id="tut-next" class="jb-img-btn" type="button" aria-label="Slide seguinte">
+                  <img src="pics/jogo-banco/btnProximo.png" alt="Próximo">
+                </button>
+                <button id="start-btn" class="jb-img-btn" type="button" aria-label="Começar" hidden>
+                  <img src="pics/jogo-banco/btnComecarGame.png" alt="Começar">
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <!-- FIM DE JOGO: mesmo balão do tutorial -->
+          <div id="end-panel" class="jb-tut-wrap">
+            <section class="jb-tut-card" aria-labelledby="end-quip">
+              <div class="jb-end">
+                <p class="jb-final"><span id="end-quip"></span> Cortaste <strong><span id="end-score">0</span> <span id="end-score-unit">alimentos saudáveis</span>!</strong></p>
+                <p>A tua melhor pontuação foi <strong><span id="end-best">0</span> <span id="end-best-unit">pontos</span>.</strong><br><span id="end-note"></span></p>
+              </div>
+              <div class="jb-end-nav">
+                <button id="again-btn" class="jb-img-btn" type="button" aria-label="Jogar outra vez">
+                  <img src="pics/jogo-banco/btnJogar.png" alt="Jogar outra vez">
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+        <!-- Contorno (pics/jogo-banco/stroke.png) -->
+        <span class="jb-edge jb-edge-t"></span><span class="jb-edge jb-edge-b"></span>
+        <span class="jb-edge jb-edge-l"><i></i></span><span class="jb-edge jb-edge-r"><i></i></span>
+      </div><!-- /jb-frame -->
+    </div>
+  </main>
+
+  <script src="js/jogo-fruta.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+.flipbook-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1420px;
+  margin: 0 auto;
+}
+
+/* Hands in front of the flipbook (pics/front-hands.png, transparent PNG).
+   A direct child of .section--sobre, sized to the full height of the
+   screen and pinned to the bottom. object-fit: cover keeps the height
+   exact and crops the sides on narrower screens (the hands stay anchored
+   to the bottom). Clicks and page drags pass through to the book.
+   Don't position it with `transform` — GSAP animates its `y` for the
+   entrance. */
+.flipbook-pic {
+  position: absolute;
+  z-index: 5; /* front hands: above the book (.flipbook-wrap is z-index 1) */
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Back hands: same box and animation, but layered behind the book.
+   z-index 0 sits above the section background (::before is -1) and
+   below .flipbook-wrap (z-index 1). */
+.flipbook-pic--back {
+  z-index: 0;
+  /* Same drop shadow as the flipbook (.sj-book in flip.css). It follows
+     the PNG's transparent outline, so it falls on the section background
+     behind the hands. */
+  filter: drop-shadow(#00000059 15px 10px 4px);
+}
+
+.flip-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.flip-nav img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.flip-nav--prev,
+.flip-nav--next {
+  /* This is the one that actually wins the cascade for `transition`
+     on these buttons (same specificity as .flip-nav above, later in
+     the file) — opacity has to be listed here, not just on .flip-nav,
+     or any opacity change (disabled fade-out, .module-nav's own
+     fade-in below) snaps instead of animating. */
+  transition: transform 0.25s ease, filter 0.25s ease, opacity 0.2s ease;
+}
+
+.flip-nav--prev {
+  left: -40px;
+  filter: drop-shadow(#00000027 15px 10px 4px);
+}
+
+.flip-nav--next {
+  right: -40px;
+  filter: drop-shadow(#00000027 15px 10px 4px);
+}
+
+.flip-nav--prev:hover:not(:disabled) {
+  transform: translateY(-50%) translateX(-10px);
+  filter:
+    drop-shadow(#00000027 15px 10px 4px) brightness(1.15) saturate(1.06);
+}
+
+.flip-nav--next:hover:not(:disabled) {
+  transform: translateY(-50%) translateX(10px);
+  filter:
+    drop-shadow(#00000027 15px 10px 4px) brightness(1.15) saturate(1.06);
+}
+
+
+/* Disabled = the book can't turn any further in that direction (first /
+   last page), so the arrow disappears entirely. The opacity transition
+   on .flip-nav--prev/--next above makes it fade out/in. pointer-events
+   is off so the invisible button can't be hovered or clicked. */
+.flip-nav:disabled {
+  opacity: 0;
+  cursor: default;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 900px) {
+  .flipbook-wrap {
+    gap: 14px;
+  }
+
+  .flip-nav {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .flip-nav {
+    width: 46px;
+    height: 46px;
+  }
+
+  .flip-nav--prev {
+    left: 4px;
+  }
+
+  .flip-nav--next {
+    right: 4px;
+  }
+}
+
+/* -- 2. sobre -- */
+.section--sobre {
+  position: relative;
+  z-index: 2;
+
+  /* Resting (dimmed) values. When arriving from Frase (via the
+     statement<->sobre swipe), js/swipe-panels.js animates these
+     from 1/1 (normal) to this dimmed state instead — see there. */
+  --sobre-brightness: 0.65;
+  --sobre-saturate: 1.06;
+
+  /* Overlay matching whichever Módulos card is active, layered on
+     top of the dimmed base above. Identity (no-op) at rest — it only
+     has a value while mid-swipe between Sobre and Módulos, animated
+     by js/swipe-panels.js (see the Sobre<->Módulos handling in
+     addFilterContinuity there), so the tint travels across with the
+     swipe and fades back to nothing once Sobre settles into place. */
+  --sobre-active-sepia: 0%;
+  --sobre-active-hue: 0deg;
+  --sobre-active-saturate: 1;
+  --sobre-active-brightness: 1;
+  --sobre-active-contrast: 1;
+}
+
+.section--sobre .section__bg::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--bg-bleed) * -1);
+
+  background-image: url("../pics/aboutSection.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter:
+    brightness(var(--sobre-brightness)) saturate(var(--sobre-saturate)) sepia(var(--sobre-active-sepia)) hue-rotate(var(--sobre-active-hue)) saturate(var(--sobre-active-saturate)) brightness(var(--sobre-active-brightness)) contrast(var(--sobre-active-contrast));
+
+  z-index: -1;
+}
+
+.bubble-grid {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.bubble-card {
+  background: url("../pics/bubble.png") center / 100% 100% no-repeat;
+  background-size: contain;
+  padding: 40px 30px 56px;
+  text-align: center;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bubble-card__icon {
+  width: 34px;
+}
+
+.bubble-card p {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--black);
+}
