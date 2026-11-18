@@ -287,9 +287,9 @@ function loadApp() {
           $('.sj-book .p2').removeClass('fixed');
 
         if (page < book.turn('pages'))
-          $('.sj-book .p23').addClass('fixed');
+          $('.sj-book .p21').addClass('fixed');
         else
-          $('.sj-book .p23').removeClass('fixed');
+          $('.sj-book .p21').removeClass('fixed');
 
       },
 

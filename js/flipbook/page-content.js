@@ -54,13 +54,12 @@ var bookPages = [
 		text: [],
 		cls: 'index-page',
 		links: [
-			{ label: 'Nota informativa', to: 'nota' },
+			{ label: 'Nota Informativa', to: 'nota' },
 			{ label: 'O que dizem os números?', to: 'importante' },
 			{ heading: 'PAS GRAS' },
-			{ label: 'Enquadramento', to: 'enquadramento' },
 			{ label: 'O que é o PAS GRAS?', to: 'pasgras' },
-			{ label: 'Muitos fatores', to: 'fatores' },
-			{ label: 'Objetivos do PASGRAS', to: 'objetivos-pasgras' }
+			{ label: 'Muitos fatores, muitas combinações', to: 'fatores' },
+			{ label: 'Público Alvo e Objetivos', to: 'objetivos-pasgras' }
 		]
 	},
 
@@ -70,13 +69,13 @@ var bookPages = [
 		text: [],
 		cls: 'index-page',
 		links: [
-			{ label: 'Público alvo', to: 'publico' },
 			{ heading: 'Plataforma interativa' },
+			{ label: 'Enquadramento', to: 'enquadramento' },
 			{ label: 'O que se pretende?', to: 'pretende' },
 			{ label: 'Como alcançar?', to: 'alcancar' },
-			{ sub: true, label: 'Informar', to: 'informar' },
-			{ sub: true, label: 'Consolidar conhecimentos', to: 'consolidar' },
-			{ sub: true, label: 'Promover a prevenção', to: 'prevencao' }
+			{ sub: true, label: 'INFORMAR', to: 'informar' },
+			{ sub: true, label: 'CONSOLIDAR CONHECIMENTOS', to: 'consolidar' },
+			{ sub: true, label: 'PROMOVER A PREVENÇÃO', to: 'prevencao' }
 		]
 	},
 
@@ -105,26 +104,7 @@ var bookPages = [
 	},
 
 
-	/* ===================== ENQUADRAMENTO (páginas 6 e 7; a página direita fica em branco: o livro precisa de páginas aos pares) ===================== */
-
-	{
-		id: 'enquadramento',
-		title: 'Enquadramento',
-		text: [
-			'Dentro das SEIS ATIVIDADES (A) em que o PAS GRAS está organizado, esta plataforma interativa enquadra-se na ATIVIDADE 4:',
-			box('COPRODUÇÃO de ferramentas e intervenções criativas e interativas que ligam literacia em saúde-dieta-atividade física ao longo da vida'),
-			{ t: 'Para saberes mais, acede a ', link: { text: 'este link', href: PASGRAS_URL } }
-		]
-	},
-
-	{
-		id: 'branco',
-		title: null,
-		text: []
-	},
-
-
-	/* ===================== O QUE DIZEM OS NÚMEROS (páginas 8 e 9) ===================== */
+	/* ===================== O QUE DIZEM OS NÚMEROS (páginas 6 e 7) ===================== */
 
 	{
 		id: 'importante',
@@ -149,7 +129,7 @@ var bookPages = [
 	},
 
 
-	/* ===================== O QUE É O PAS GRAS (páginas 10 e 11) ===================== */
+	/* ===================== O QUE É O PAS GRAS (páginas 8 e 9) ===================== */
 
 	{
 		id: 'pasgras',
@@ -176,7 +156,7 @@ var bookPages = [
 	},
 
 
-	/* ===================== MUITOS FATORES, MUITAS COMBINAÇÕES (páginas 12 e 13) ===================== */
+	/* ===================== MUITOS FATORES, MUITAS COMBINAÇÕES (páginas 10 e 11) ===================== */
 
 	{
 		id: 'fatores',
@@ -195,47 +175,24 @@ var bookPages = [
 		id: 'fatores2',
 		title: null,
 		text: [
-			box('A ALIMENTAÇÃO, A ATIVIDADE FÍSICA e o papel dos nossos hábitos sedentários na saúde'),
+			box('A ALIMENTAÇÃO, a ATIVIDADE FÍSICA e o papel do sedentarismo na saúde'),
 			box('O BEM-ESTAR PSICOLÓGICO e a relação entre o stress, os sentimentos e os nossos comportamentos'),
-			box('O CONTEXTO ECONÓMICO e AS ROTINAS FAMILIARES que determinam as escolhas do dia a dia '),
+			box('O CONTEXTO ECONÓMICO e as ROTINAS FAMILIARES que determinam as escolhas do dia a dia '),
 			box('O AMIENTE ENVOLVENTE e as condições ambientais e físicas dos espaços onde vivemos'),
-			'Duas pessoas da mesma idade podem ter fatores de risco muito distintos. Por isso, aquilo que influencia a saúde de uma pessoa pode não ter o mesmo efeito noutra.'
+			'Posto isto, aquilo que influencia a saúde de uma pessoa pode não ter o mesmo efeito noutra.'
 		]
 	},
 
 
-	/* ===================== OBJETIVOS DO PASGRAS (páginas 14 e 15) ===================== */
+	/* ===================== PÚBLICO ALVO E OBJETIVOS (páginas 12 e 13) ===================== */
 
 	{
 		id: 'objetivos-pasgras',
-		title: 'Objetivos do PASGRAS',
+		title: 'Público Alvo e Objetivos',
 		titleSize: 'big',
+		titleOneLine: true,
 		text: [
-			'Como já pudeste ler, o PASGRAS pretende:',
-			'1. DESCOBRIR os fatores que influenciam a saúde',
-			'2. CRIAR uma Ferramenta de Avaliação de Risco, que combina diferentes fatores para estimar a probabilidade de uma pessoa desenvolver obesidade ou problemas de saúde associados'
-		]
-	},
-
-	{
-		id: 'objetivos-pasgras2',
-		title: null,
-		cls: 'tight-top',
-		text: [
-			'3. DESENVOLVER programas adaptados às características e necessidades de cada pessoa, com recomendações sobre alimentação, atividade física e outros hábitos de vida.',
-			'4. LANÇAR a CAMPANHA PAS GRAS, com o intuito de aproximar a ciência e as pessoas, educar sobre saúde e combater ideias erradas sobre a obesidade.'
-		]
-	},
-
-
-	/* ===================== PÚBLICO ALVO (páginas 16 e 17) ===================== */
-
-	{
-		id: 'publico',
-		title: 'Público alvo',
-		titleSize: 'big',
-		text: [
-			'A saúde acompanha-nos ao longo de toda a vida, sendo que cada fase traz mudanças, desafios e necessidades diferentes. Por isso, o PAS GRAS dedica-se a quatro faixas etárias:',
+		'A saúde acompanha-nos ao longo de toda a vida, sendo que cada fase traz mudanças, desafios e necessidades diferentes. Por isso, o PAS GRAS dedica-se a quatro faixas etárias:',
 			 box('CRIANÇAS (3–9 ANOS)'), 
 			 box('ADOLESCENTES (10–18 ANOS)'), 
 			 box('JOVENS ADULTOS (19–25 ANOS)'),
@@ -244,10 +201,35 @@ var bookPages = [
 	},
 
 	{
-		id: 'publico2',
+		id: 'objetivos-pasgras2',
 		title: null,
-		image1: 'pics/page11.png',
-		imageClass1: 'right-pic',
+		cls: 'tight-top',
+		text: [
+				'Assim sendo, o que pretende o PAS GRAS?',
+			box('DETERMINAR que fatores influenciam a saúde'),
+			box('CRIAR uma Ferramenta de Avaliação de Risco, que estime a probabilidade de desenvolvimento da obesidade ou de complicações associadas'),
+			box('DESENVOLVER programas personalizados, com recomendações sobre alimentação, atividade física e outros hábitos de vida'),
+			box('LANÇAR a CAMPANHA PAS GRAS, para aproximar a ciência e o público, e educar sobre a saúde e a obesidade')
+		]
+	},
+
+
+	/* ===================== ENQUADRAMENTO (páginas 14 e 15; a página direita fica em branco: o livro precisa de páginas aos pares) ===================== */
+
+	{
+		id: 'enquadramento',
+		title: 'Enquadramento',
+		text: [
+			'Dentro das SEIS ATIVIDADES (A) em que o PAS GRAS está organizado, esta plataforma interativa enquadra-se na ATIVIDADE 4:',
+			box('COPRODUÇÃO de ferramentas e intervenções criativas e interativas que ligam literacia em saúde-dieta-atividade física ao longo da vida'),
+			{ t: 'Para saberes mais, acede a ', link: { text: 'este link', href: PASGRAS_URL } }
+		]
+	},
+
+	{
+		id: 'branco',
+		title: null,
+		text: []
 	},
 
 

@@ -29,14 +29,14 @@ function updateDepth(book, newPage) {
 
 	if (newPage < pages - 3)
 
-		$('.sj-book .p23 .depth').css({
+		$('.sj-book .p21 .depth').css({
 			width: depthWidth,
 			right: 20 - depthWidth
 		});
 
 	else
 
-		$('.sj-book .p23 .depth').css({
+		$('.sj-book .p21 .depth').css({
 			width: 0
 		});
 

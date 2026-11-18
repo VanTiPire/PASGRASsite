@@ -1,4 +1,4 @@
-@font-face {
+font-face {
 	font-family: 'Daruma Drop One';
 	src: url('../fonts/DarumaDropOne-Regular.ttf') format('truetype');
 	font-weight: 400;
@@ -59,7 +59,7 @@
    BOOK LAYOUT
 
    1 front cover | 2 cover interior (hard) | 3 ... 22 inner pages |
-   23 back interior (hard) | 24 back cover
+   21 back interior (hard) | 22 back cover
 
    Only the four hard pages are addressed by number. Every other
    rule uses turn.js's own .odd (right-hand) / .even (left-hand)
@@ -85,7 +85,7 @@
 	transform: translateY(-50%);
 }
 
-.sj-book .p23 .book-content {
+.sj-book .p21 .book-content {
 	background-image: url(../pics/pageRight.png) !important;
 	background-size: 100% 100% !important;
 	background-position: center !important;
@@ -103,25 +103,25 @@
 
 /* ---------- Page backgrounds ---------- */
 
-.sj-book .odd:not(.p1):not(.p23),
-.sj-book .even:not(.p2):not(.p24) {
+.sj-book .odd:not(.p1):not(.p21),
+.sj-book .even:not(.p2):not(.p22) {
 	background-size: 100% 100% !important;
 	background-position: center !important;
 	background-repeat: no-repeat !important;
 }
 
-.sj-book .odd:not(.p1):not(.p23) {
+.sj-book .odd:not(.p1):not(.p21) {
 	background-image: url(../pics/pageRight.png) !important;
 }
 
-.sj-book .even:not(.p2):not(.p24) {
+.sj-book .even:not(.p2):not(.p22) {
 	background-image: url(../pics/pageLeft.png) !important;
 }
 
 .sj-book .p1,
 .sj-book .p2,
-.sj-book .p23,
-.sj-book .p24 {
+.sj-book .p21,
+.sj-book .p22 {
 	background-size: 100% 100% !important;
 	background-position: center !important;
 	background-repeat: no-repeat !important;
@@ -135,11 +135,11 @@
 	background-image: url(../pics/coverInterior.png) !important;
 }
 
-.sj-book .p23 {
+.sj-book .p21 {
 	background-image: url(../pics/backInterior.png) !important;
 }
 
-.sj-book .p24 {
+.sj-book .p22 {
 	background-image: url(../pics/back.png) !important;
 }
 
@@ -165,7 +165,7 @@
 }
 
 /* Right-hand pages */
-.sj-book .p23 .book-content,
+.sj-book .p21 .book-content,
 .sj-book .odd .book-content {
 	padding: 35px 40px 60px 80px;
 }
@@ -301,18 +301,18 @@
 /* ---------- Max-width of the pictures, page by page ----------
    Number = page of the book (see page-content.js / the image file name:
    pics/pageN.png). Percentages are relative to the width of the text. */
-/* page 5  = informativo   (was 17)
-   page 7  = nome           (was 5)
-   page 9  = 2050           (was 7)
-   page 11 = publico2       (was 9) */
+/* page 5  = informativo
+   page 7  = 2050
+   page 9  = nome
+   page 16 = pretende
+   page 19-21 = informar, consolidar, prevencao */
 .sj-book .p5 .book-content img  { max-width: 83%; } /* = default of .right-pic */
-.sj-book .p7 .book-content img  { max-width: 56%; }
-.sj-book .p9 .book-content img  { max-width: 80%; }
-.sj-book .p11 .book-content img { max-width: 55%; }
-.sj-book .p18 .book-content img { max-width: 90%; }
-.sj-book .p21 .book-content img { max-width: 83%; } /* = default of .right-pic */
-.sj-book .p22 .book-content img { max-width: 65%; }
-.sj-book .p23 .book-content img { max-width: 76%; }
+.sj-book .p7 .book-content img  { max-width: 80%; }
+.sj-book .p9 .book-content img  { max-width: 55%; }
+.sj-book .p16 .book-content img { max-width: 90%; }
+.sj-book .p19 .book-content img { max-width: 83%; } /* = default of .right-pic */
+.sj-book .p20 .book-content img { max-width: 65%; }
+.sj-book .p21 .book-content img { max-width: 76%; }
 
 
 .sj-book .page {
@@ -393,7 +393,7 @@
 	overflow: hidden;
 }
 
-.sj-book .even:not(.p2):not(.p24) {
+.sj-book .even:not(.p2):not(.p22) {
 	background: -webkit-gradient(linear, left top, right top, color-stop(0.95, #fff), color-stop(1, #dadada));
 	background-image: -webkit-linear-gradient(left, #fff 95%, #dadada 100%);
 	background-image: -moz-linear-gradient(left, #fff 95%, #dadada 100%);
@@ -402,7 +402,7 @@
 	background-image: linear-gradient(left, #fff 95%, #dadada 100%);
 }
 
-.sj-book .odd:not(.p1):not(.p23) {
+.sj-book .odd:not(.p1):not(.p21) {
 	background: -webkit-gradient(linear, right top, left top, color-stop(0.95, #fff), color-stop(1, #cacaca));
 	background-image: -webkit-linear-gradient(right, #fff 95%, #cacaca 100%);
 	background-image: -moz-linear-gradient(right, #fff 95%, #cacaca 100%);
@@ -413,14 +413,14 @@
 
 /* The gradient shorthand above would wipe the page texture, so the
    page images are re-applied after it (they carry !important). */
-.sj-book .odd:not(.p1):not(.p23) {
+.sj-book .odd:not(.p1):not(.p21) {
 	background-image: url(../pics/pageRight.png) !important;
 	background-size: 100% 100% !important;
 	background-position: center !important;
 	background-repeat: no-repeat !important;
 }
 
-.sj-book .even:not(.p2):not(.p24) {
+.sj-book .even:not(.p2):not(.p22) {
 	background-image: url(../pics/pageLeft.png) !important;
 	background-size: 100% 100% !important;
 	background-position: center !important;
@@ -484,11 +484,11 @@
 
 /* Turn off the turn.js flip shadow (the dark "ashadow" div it injects
    as the 3rd child of each .page-wrapper) only for the hard-cover
-   pages: 1, 2, 23, 24. Inner pages keep their gradient shadow. */
+   pages: 1, 2, 21, 22. Inner pages keep their gradient shadow. */
 .sj-book>.page-wrapper[page="1"]>div:nth-child(3),
 .sj-book>.page-wrapper[page="2"]>div:nth-child(3),
-.sj-book>.page-wrapper[page="23"]>div:nth-child(3),
-.sj-book>.page-wrapper[page="24"]>div:nth-child(3) {
+.sj-book>.page-wrapper[page="21"]>div:nth-child(3),
+.sj-book>.page-wrapper[page="22"]>div:nth-child(3) {
 	background-color: transparent !important;
 }
 
@@ -497,8 +497,8 @@
    catch the mouse, otherwise the index entries on page 2 can't be clicked. */
 .sj-book>.page-wrapper[page="1"]>div:nth-child(n+2),
 .sj-book>.page-wrapper[page="2"]>div:nth-child(n+2),
-.sj-book>.page-wrapper[page="23"]>div:nth-child(n+2),
-.sj-book>.page-wrapper[page="24"]>div:nth-child(n+2) {
+.sj-book>.page-wrapper[page="21"]>div:nth-child(n+2),
+.sj-book>.page-wrapper[page="22"]>div:nth-child(n+2) {
 	pointer-events: none;
 }
 
@@ -649,7 +649,7 @@
 	left: 40px;
 }
 
-.sj-book .p23 .book-content .page-number,
+.sj-book .p21 .book-content .page-number,
 .sj-book .odd .book-content .page-number {
 	right: 40px;
 }
