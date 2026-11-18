@@ -282,9 +282,120 @@ const { STATEMENT_INDEX, SOBRE_INDEX, MODULOS_INDEX, CONQUISTAS_INDEX, FAMILIA_I
     }
   }
 
+  // The mirror image of fadeOutFilterForHero: arriving from the hero
+  // (Início) at Sobre, Módulos, Conquistas or Família. The hero has no
+  // filter, so the incoming panel slides in with the normal look and its
+  // dimming fades in over the last HERO_FILTER_DURATION seconds of the
+  // slide (the fade-out for the hero plays during the first ones).
+  const SLIDE_DURATION = 0.75; // same as the timeline default in panels.js
+
+  function fadeInFilterFromHero(tl, panels, toIndex) {
+    const panel = panels[toIndex];
+    const at = Math.max(0, SLIDE_DURATION - HERO_FILTER_DURATION);
+
+    // Drop leftover module-card tints on Sobre / Conquistas.
+    clearNeighborTints(panels, HERO_INDEX);
+
+    if (toIndex === SOBRE_INDEX) {
+      tl.fromTo(panel, Object.assign({}, SOBRE_NORMAL), Object.assign({}, SOBRE_DIMMED, { duration: HERO_FILTER_DURATION }), at);
+    } else if (toIndex === MODULOS_INDEX) {
+      // Base dimming + the active module card's tint (read from the CSS
+      // cascade), both fading in together.
+      const activeTint = readActiveModuleTint(panel);
+      panel.classList.add("is-filter-crossfading");
+      tl.fromTo(
+        panel,
+        Object.assign({}, MODULOS_NORMAL, MODULOS_ACTIVE_IDENTITY),
+        Object.assign({}, MODULOS_DIMMED, activeTint, { duration: HERO_FILTER_DURATION }),
+        at
+      );
+      // Hand the look back to the CSS cascade (same values) once it lands.
+      tl.set(panel, { clearProps: MODULOS_BASE_PROPS.concat(MODULOS_ACTIVE_PROPS).join(",") });
+      tl.call(() => panel.classList.remove("is-filter-crossfading"));
+    } else if (toIndex === CONQUISTAS_INDEX) {
+      tl.fromTo(panel, Object.assign({}, CONQUISTAS_NORMAL), Object.assign({}, CONQUISTAS_DIMMED, { duration: HERO_FILTER_DURATION }), at);
+    } else if (toIndex === FAMILIA_INDEX) {
+      tl.fromTo(panel, Object.assign({}, FAMILIA_NORMAL_LOOK), Object.assign({}, FAMILIA_FILTERED, { duration: HERO_FILTER_DURATION }), at);
+    }
+  }
+
   function addFilterContinuity(tl, panels, fromIndex, toIndex) {
     if (toIndex === HERO_INDEX) {
       fadeOutFilterForHero(tl, panels, fromIndex);
+      return;
+    }
+
+    if (fromIndex === HERO_INDEX && toIndex !== STATEMENT_INDEX) {
+      fadeInFilterFromHero(tl, panels, toIndex);
+      return;
+    }
+
+    // Direct jump (nav click / index.html#hash) into Sobre or Módulos from a
+    // panel they aren't adjacent to. The incoming panel crossfades from the
+    // look of the panel it came from to its own resting (dimmed) look, the
+    // same way the Frase <-> Sobre swipe does. Adjacent pairs keep their
+    // own transitions further down.
+    const directToSobre = toIndex === SOBRE_INDEX &&
+      (fromIndex === CONQUISTAS_INDEX || fromIndex === FAMILIA_INDEX);
+    const directToModulos = toIndex === MODULOS_INDEX &&
+      (fromIndex === STATEMENT_INDEX || fromIndex === FAMILIA_INDEX);
+
+    if (directToSobre || directToModulos) {
+      // Drop leftover module-card tints on Sobre/Conquistas (not the outgoing panel).
+      clearNeighborTints(panels, fromIndex);
+
+      const fromFamilia = fromIndex === FAMILIA_INDEX;
+      const fromConquistas = fromIndex === CONQUISTAS_INDEX;
+
+      if (fromFamilia) {
+        // Família's footer look settles back to Conquistas' resting look as it
+        // slides away, like in the Conquistas <-> Família swipe.
+        tl.fromTo(panels[FAMILIA_INDEX], Object.assign({}, FAMILIA_FILTERED), Object.assign({}, FAMILIA_NORMAL), 0);
+        tl.set(panels[FAMILIA_INDEX], { clearProps: Object.keys(FAMILIA_NORMAL).join(",") });
+      }
+
+      if (directToSobre) {
+        // Starting look = the one the outgoing panel has. Conquistas already
+        // rests at the same dimmed look, so nothing visibly changes there.
+        if (fromFamilia) {
+          // Mesma transição que Família -> Conquistas / Módulos: o Sobre
+          // parte do look do footer (brilho .65, saturação 1.8, matiz 30deg)
+          // e assenta no seu look escurecido. Precisa de --sobre-sepia/-hue/
+          // -contrast no filtro do Sobre (ver css/sobre.css).
+          tl.fromTo(
+            panels[SOBRE_INDEX],
+            { "--sobre-sepia": "0%", "--sobre-hue": "30deg", "--sobre-saturate": 1.8, "--sobre-brightness": 0.65, "--sobre-contrast": 1 },
+            { "--sobre-sepia": "0%", "--sobre-hue": "0deg", "--sobre-saturate": SOBRE_DIMMED["--sobre-saturate"], "--sobre-brightness": SOBRE_DIMMED["--sobre-brightness"], "--sobre-contrast": 1 },
+            0
+          );
+          // Já fora do ecrã os extras voltam ao valor por defeito do CSS.
+          tl.set(panels[SOBRE_INDEX], { clearProps: "--sobre-sepia,--sobre-hue,--sobre-contrast" });
+        } else {
+          const start = fromConquistas ? SOBRE_DIMMED : SOBRE_NORMAL;
+          tl.fromTo(panels[SOBRE_INDEX], Object.assign({}, start), Object.assign({}, SOBRE_DIMMED), 0);
+        }
+      } else {
+        const panel = panels[MODULOS_INDEX];
+        // Tint of the active module card (if any), read from the CSS cascade
+        // so it fades in together with the base dimming.
+        const activeTint = readActiveModuleTint(panel);
+        const startBase = fromFamilia
+          ? { "--modulos-sepia": "0%", "--modulos-hue": "30deg", "--modulos-saturate": 1.8, "--modulos-brightness": 0.65, "--modulos-contrast": 1 }
+          : MODULOS_NORMAL;
+
+        // Off for the duration (see the matching CSS rule) so Módulos' own
+        // 0.4s filter transition doesn't lag behind the tween.
+        panel.classList.add("is-filter-crossfading");
+        tl.fromTo(
+          panel,
+          Object.assign({}, startBase, MODULOS_ACTIVE_IDENTITY),
+          Object.assign({}, MODULOS_DIMMED, activeTint),
+          0
+        );
+        // Hand the look back to the CSS cascade once it lands (same values).
+        tl.set(panel, { clearProps: MODULOS_BASE_PROPS.concat(MODULOS_ACTIVE_PROPS).join(",") });
+        tl.call(() => panel.classList.remove("is-filter-crossfading"));
+      }
       return;
     }
 
@@ -338,6 +449,10 @@ const { STATEMENT_INDEX, SOBRE_INDEX, MODULOS_INDEX, CONQUISTAS_INDEX, FAMILIA_I
         0
       );
     } else if (isSobreModulosPair) {
+      // Entering Sobre from Módulos: make sure Sobre's own base dimming is
+      // in place (both panels rest at the same dimmed look), then crossfade
+      // the module-card tint on top of it.
+      if (toIndex === SOBRE_INDEX) tl.set(panels[SOBRE_INDEX], Object.assign({}, SOBRE_DIMMED), 0);
       crossfadeModulosTint(tl, panels, toIndex, SOBRE_INDEX);
     } else if (isModulosConquistasPair) {
       crossfadeModulosTint(tl, panels, toIndex, CONQUISTAS_INDEX);

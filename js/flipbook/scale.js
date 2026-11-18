@@ -11,6 +11,7 @@
    the way `zoom` does.
 =========================================================== */
 const FLIPBOOK_NATIVE_WIDTH = 1420;
+const FLIPBOOK_NATIVE_HEIGHT = 520;
 
 function updateFlipbookScale() {
   const scaleWrap = document.querySelector(".flipbook-scale");
@@ -20,16 +21,19 @@ function updateFlipbookScale() {
   const availableWidth = scaleWrap.clientWidth;
   if (!availableWidth) return;
 
-  const ratio = availableWidth / FLIPBOOK_NATIVE_WIDTH;
+  const ratio = Math.min(1, availableWidth / FLIPBOOK_NATIVE_WIDTH);
 
-  canvas.style.zoom = ratio;
-  // turn.js's own coordinate math (this.width()/this.height()) reads the
-  // book's *declared* CSS size (1420x520), not the zoomed rendered size —
-  // but its pointer-tracking code reads real, already-zoomed screen pixels
-  // via offset()/pageX. Without normalizing, corner-detection and drag
-  // tracking only line up when ratio is exactly 1. turn.js (patched) reads
-  // this global to convert pointer deltas back into the book's own,
-  // unscaled coordinate space.
+  // transform: scale() instead of CSS zoom. The book keeps its native
+  // 1420x520 layout (whole pixels everywhere) and is scaled afterwards, so
+  // text is rendered the same way before and during a page peel.
+  canvas.style.zoom = "";
+  canvas.style.transformOrigin = "0 0";
+  canvas.style.transform = "scale(" + ratio + ")";
+
+  // A transform doesn't change layout, so reserve the scaled height ourselves.
+  scaleWrap.style.height = Math.round(FLIPBOOK_NATIVE_HEIGHT * ratio) + "px";
+
+  // turn.js (patched) divides pointer coordinates by this value.
   window.__flipbookScale = ratio;
 }
 

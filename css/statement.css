@@ -90,3 +90,7 @@
   text-transform: uppercase;
   color: var(--black);
 }
+
+.section--statement .section__inner {
+  padding-bottom: 40px; /* tweak to match the old button + gap */
+}

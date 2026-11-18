@@ -144,8 +144,11 @@
   /* Resting (dimmed) values. When arriving from Frase (via the
      statement<->sobre swipe), js/swipe-panels.js animates these
      from 1/1 (normal) to this dimmed state instead — see there. */
-  --sobre-brightness: 0.65;
+  --sobre-sepia: 0%;
+  --sobre-hue: 0deg;
   --sobre-saturate: 1.06;
+  --sobre-brightness: 0.65;
+  --sobre-contrast: 1;
 
   /* Overlay matching whichever Módulos card is active, layered on
      top of the dimmed base above. Identity (no-op) at rest — it only
@@ -171,7 +174,7 @@
   background-repeat: no-repeat;
 
   filter:
-    brightness(var(--sobre-brightness)) saturate(var(--sobre-saturate)) sepia(var(--sobre-active-sepia)) hue-rotate(var(--sobre-active-hue)) saturate(var(--sobre-active-saturate)) brightness(var(--sobre-active-brightness)) contrast(var(--sobre-active-contrast));
+    sepia(var(--sobre-sepia)) hue-rotate(var(--sobre-hue)) saturate(var(--sobre-saturate)) brightness(var(--sobre-brightness)) contrast(var(--sobre-contrast)) sepia(var(--sobre-active-sepia)) hue-rotate(var(--sobre-active-hue)) saturate(var(--sobre-active-saturate)) brightness(var(--sobre-active-brightness)) contrast(var(--sobre-active-contrast));
 
   z-index: -1;
 }

@@ -86,9 +86,9 @@
       <div class="site-header__inner">
         <nav class="site-nav" aria-label="Navegação principal">
           <a href="#inicio" class="is-active">Inîcio</a>
-          <a href="sobre.html">Sobre</a>
+          <a href="#sobre">Sobre</a>
           <a href="#modulos">Môdulos</a>
-          <a href="conquistas.html">Conquistas</a>
+          <a href="#conquistas">Conquistas</a>
         </nav>
         <div class="site-header__actions">
           <a href="#" class="btn btn--image">
@@ -157,12 +157,6 @@
             Uma experiência interativa criada para aprenderes como a alimentação, o exercício físico e o bem-estar
             influenciam a tua saúde e o teu dia a dia.
           </h2>
-
-          <div class="hero__actions">
-            <a href="#modulos" class="btn btn--image">
-              <img src="pics/btnSaber.png" alt="Saber Mais">
-            </a>
-          </div>
         </div>
         <!-- Section background picture (moved by the mouse parallax, see style.css / initParallax) -->
         <div class="section__bg" aria-hidden="true"></div>
@@ -194,16 +188,34 @@
                     <div depth="5" class="hard front-side">
                       <div class="depth"></div>
                     </div>
+                    <!-- Páginas 3 a 22: uma <div> por página (par = esquerda). Total do livro = 24 páginas
+                         = capa + páginas + contracapa; tem de coincidir com bookPages.length + 2
+                         em page-content.js. Para acrescentar páginas, acrescenta pares de <div> aqui
+                         e renomeia as duas últimas (p23/p24) no HTML, init.js, helpers.js e flip.css. -->
                     <div class="own-size"></div>
                     <div class="own-size even"></div>
                     <div class="own-size"></div>
                     <div class="own-size even"></div>
                     <div class="own-size"></div>
                     <div class="own-size even"></div>
-                    <div class="hard fixed back-side p9">
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="own-size"></div>
+                    <div class="own-size even"></div>
+                    <div class="hard fixed back-side p23">
                       <div class="depth"></div>
                     </div>
-                    <div class="hard p10"></div>
+                    <div class="hard p24"></div>
                   </div>
                 </div>
               </div>
@@ -454,9 +466,9 @@
                 </a>
                 <nav class="site-footer__nav" aria-label="Navegação do rodapé">
                   <a href="#inicio">Inîcio</a>
-                  <a href="sobre.html">Sobre</a>
+                  <a href="#sobre">Sobre</a>
                   <a href="#modulos">Môdulos</a>
-                  <a href="conquistas.html">Conquistas</a>
+                  <a href="#conquistas">Conquistas</a>
                 </nav>
                 <div class="site-footer__actions">
                   <a href="#" class="btn btn--image">

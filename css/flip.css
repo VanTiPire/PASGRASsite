@@ -23,18 +23,18 @@
    sizing needs min-width:0 or it refuses to shrink below the
    book's native 1420px content size and overflows on mobile. */
 .flipbook-scale {
-    width: 100%;
-    max-width: 1420px;
-    min-width: 0;
-    margin: 0 auto;
+	width: 100%;
+	max-width: 1420px;
+	min-width: 0;
+	margin: 0 auto;
 
 }
 
 #canvas {
-    width: 1420px;
-    height: 520px;
-    margin: 0 auto;
-    transform-origin: top left;
+	width: 1420px;
+	height: 520px;
+	margin: 0 auto;
+	transform-origin: top left;
 
 }
 
@@ -50,11 +50,25 @@
 	width: 1420px;
 	height: 520px;
 	filter: drop-shadow(#00000059 15px 10px 4px);
-	 user-select: none;
-  -webkit-user-select: none;
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 
+/* ===========================================================
+   BOOK LAYOUT
+
+   1 front cover | 2 cover interior (hard) | 3 ... 22 inner pages |
+   23 back interior (hard) | 24 back cover
+
+   Only the four hard pages are addressed by number. Every other
+   rule uses turn.js's own .odd (right-hand) / .even (left-hand)
+   classes, so adding pages never needs CSS changes.
+   (If you add pages, update the two "last pages" numbers below:
+   back interior = total - 1, back cover = total.)
+=========================================================== */
+
+/* ---------- Hard pages: content sits in a 690x462 frame ---------- */
 
 .sj-book .p2 .book-content {
 	background-image: url(../pics/pageLeft.png) !important;
@@ -71,7 +85,7 @@
 	transform: translateY(-50%);
 }
 
-.sj-book .p9 .book-content {
+.sj-book .p23 .book-content {
 	background-image: url(../pics/pageRight.png) !important;
 	background-size: 100% 100% !important;
 	background-position: center !important;
@@ -86,6 +100,52 @@
 	transform: translateY(-50%);
 }
 
+
+/* ---------- Page backgrounds ---------- */
+
+.sj-book .odd:not(.p1):not(.p23),
+.sj-book .even:not(.p2):not(.p24) {
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .odd:not(.p1):not(.p23) {
+	background-image: url(../pics/pageRight.png) !important;
+}
+
+.sj-book .even:not(.p2):not(.p24) {
+	background-image: url(../pics/pageLeft.png) !important;
+}
+
+.sj-book .p1,
+.sj-book .p2,
+.sj-book .p23,
+.sj-book .p24 {
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .p1 {
+	background-image: url(../pics/cover.png) !important;
+}
+
+.sj-book .p2 {
+	background-image: url(../pics/coverInterior.png) !important;
+}
+
+.sj-book .p23 {
+	background-image: url(../pics/backInterior.png) !important;
+}
+
+.sj-book .p24 {
+	background-image: url(../pics/back.png) !important;
+}
+
+
+/* ---------- Text ---------- */
+
 .sj-book .book-content {
 	letter-spacing: 0.03em;
 	word-spacing: 0.2em;
@@ -94,23 +154,29 @@
 	color: #6a6355;
 }
 
+.sj-book .book-content.fs-20 {
+	font-size: 20px;
+}
+
+/* Left-hand pages */
 .sj-book .p2 .book-content,
-.sj-book .p4 .book-content,
-.sj-book .p6 .book-content,
-.sj-book .p8 .book-content {
+.sj-book .even .book-content {
 	padding: 35px 80px 60px 40px;
 }
 
-.sj-book .p3 .book-content,
-.sj-book .p7 .book-content,
-.sj-book .p9 .book-content {
+/* Right-hand pages */
+.sj-book .p23 .book-content,
+.sj-book .odd .book-content {
 	padding: 35px 40px 60px 80px;
 }
 
-.sj-book .p5 .book-content {
-	padding: 17px 40px 60px 80px;
+.sj-book .book-content.tight-top {
+	padding-top: 17px;
 }
 
+/* Titles: exactly as in the original stylesheet (large, centred, no margin
+   rules of our own). .title-small is the underlined 26px variant the
+   original used on its pages 2, 7, 8 and 9. */
 .sj-book .book-content h2 {
 	text-align: center;
 	font-size: 45px;
@@ -118,10 +184,15 @@
 	color: var(--black);
 }
 
-.sj-book .p2 .book-content h2,
-.sj-book .p7 .book-content h2,
-.sj-book .p8 .book-content h2,
-.sj-book .p9 .book-content h2 {
+.sj-book .book-content h2.title-oneline {
+	white-space: nowrap;
+}
+
+.sj-book .book-content h2.title-tight {
+	line-height: 0.95; /* smaller space between the two lines of the title */
+}
+
+.sj-book .book-content h2.title-small {
 	margin-top: 25px;
 	color: var(--black);
 	text-decoration: underline;
@@ -129,28 +200,6 @@
 	text-decoration-color: var(--black);
 	text-underline-offset: 0.2em;
 	font-size: 26px;
-}
-
-
-
-.sj-book .p2 .book-content p:nth-last-child(-n+4),
-.sj-book .p5 .book-content p:nth-child(-n+6) {
-	text-indent: 0px;
-	color: #735915;
-	background-color: #ffea7fd4;
-	padding: 5px 22px;
-	margin: 8px 0;
-	border-radius: 4px;
-}
-
-.sj-book .p3 .book-content p {
-	font-size: 20px;
-}
-
-
-.sj-book .zoom-this:hover {
-	opacity: 0.9;
-	cursor: pointer;
 }
 
 .sj-book .book-content p {
@@ -161,10 +210,62 @@
 }
 
 
+/* Paragraph styles (set per paragraph in page-content.js) */
+.sj-book .book-content p.box {
+	text-indent: 0px;
+	color: #735915;
+	background-color: #ffea7fd4;
+	padding: 5px 22px;
+	margin: 8px 0;
+	border-radius: 4px;
+}
+
+.sj-book .book-content p.box.star {
+	background-color: #ffd23f;
+	color: #5a4200;
+	box-shadow: 0 0 0 3px #e0a800 inset;
+}
+
+.sj-book .book-content p.stat {
+	text-indent: 0;
+	text-align: center;
+	font-size: 1.2em;
+	color: #735915;
+	background-color: #ffea7fd4;
+	padding: 8px 18px;
+	margin: 12px 0;
+	border-radius: 4px;
+}
+
+.sj-book .book-content p.source {
+	text-indent: 0;
+	font-size: .65em;
+	opacity: .8;
+}
+
+.sj-book .book-content p .head {
+	display: block;
+	text-transform: uppercase;
+	color: #5a4200;
+}
+
+.sj-book .book-content p .foot {
+	display: block;
+	font-size: .8em;
+	font-style: italic;
+	opacity: .85;
+}
+
+/* ---------- Images ---------- */
+
+.sj-book .zoom-this:hover {
+	opacity: 0.9;
+	cursor: pointer;
+}
+
 .sj-book .own-size {
 	box-sizing: border-box;
 }
-
 
 .sj-book .book-content img {
 	max-width: 100%;
@@ -197,19 +298,21 @@
 	max-width: 70%;
 }
 
-.sj-book .p4 img {
-	max-width: 90%;
-}
-
-.sj-book .p8 img {
-	max-width: 65%;
-}
-
-.sj-book .p9 img {
-	max-width: 76%;
-}
-
-
+/* ---------- Max-width of the pictures, page by page ----------
+   Number = page of the book (see page-content.js / the image file name:
+   pics/pageN.png). Percentages are relative to the width of the text. */
+/* page 5  = informativo   (was 17)
+   page 7  = nome           (was 5)
+   page 9  = 2050           (was 7)
+   page 11 = publico2       (was 9) */
+.sj-book .p5 .book-content img  { max-width: 83%; } /* = default of .right-pic */
+.sj-book .p7 .book-content img  { max-width: 56%; }
+.sj-book .p9 .book-content img  { max-width: 80%; }
+.sj-book .p11 .book-content img { max-width: 55%; }
+.sj-book .p18 .book-content img { max-width: 90%; }
+.sj-book .p21 .book-content img { max-width: 83%; } /* = default of .right-pic */
+.sj-book .p22 .book-content img { max-width: 65%; }
+.sj-book .p23 .book-content img { max-width: 76%; }
 
 
 .sj-book .page {
@@ -236,58 +339,6 @@
 	-o-box-shadow: 0 0 20px #999;
 	-ms-box-shadow: 0 0 20px #999;
 	box-shadow: 0 0 20px #999;
-}
-
-.sj-book .p1 {
-
-	background-image: url(../pics/cover.png) !important;
-	background-size: 100% 100% !important;
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-}
-
-.sj-book .p10 {
-
-	background-image: url(../pics/back.png) !important;
-	background-size: 100% 100% !important;
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-}
-
-.sj-book .p3,
-.sj-book .p5,
-.sj-book .p7 {
-
-	background-image: url(../pics/pageRight.png) !important;
-	background-size: 100% 100% !important;
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-}
-
-.sj-book .p4,
-.sj-book .p6,
-.sj-book .p8 {
-
-	background-image: url(../pics/pageLeft.png) !important;
-	background-size: 100% 100% !important;
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-}
-
-.sj-book .p2 {
-
-	background-image: url(../pics/coverInterior.png) !important;
-	background-size: 100% 100% !important;
-	background-position: center !important;
-	background-repeat: no-repeat !important;
-}
-
-.sj-book .p9 {
-
-	background-image: url(../pics/backInterior.png) !important;
-	background-size: 100% 100% !important;
-	background-position: center !important;
-	background-repeat: no-repeat !important;
 }
 
 .sj-book .p1 .side {
@@ -342,7 +393,7 @@
 	overflow: hidden;
 }
 
-.sj-book .even:not(.p2):not(.p10) {
+.sj-book .even:not(.p2):not(.p24) {
 	background: -webkit-gradient(linear, left top, right top, color-stop(0.95, #fff), color-stop(1, #dadada));
 	background-image: -webkit-linear-gradient(left, #fff 95%, #dadada 100%);
 	background-image: -moz-linear-gradient(left, #fff 95%, #dadada 100%);
@@ -351,13 +402,29 @@
 	background-image: linear-gradient(left, #fff 95%, #dadada 100%);
 }
 
-.sj-book .odd:not(.p1):not(.p9) {
+.sj-book .odd:not(.p1):not(.p23) {
 	background: -webkit-gradient(linear, right top, left top, color-stop(0.95, #fff), color-stop(1, #cacaca));
 	background-image: -webkit-linear-gradient(right, #fff 95%, #cacaca 100%);
 	background-image: -moz-linear-gradient(right, #fff 95%, #cacaca 100%);
 	background-image: -ms-linear-gradient(right, #fff 95%, #cacaca 100%);
 	background-image: -o-linear-gradient(right, #fff 95%, #cacaca 100%);
 	background-image: linear-gradient(right, #fff 95%, #cacaca 100%);
+}
+
+/* The gradient shorthand above would wipe the page texture, so the
+   page images are re-applied after it (they carry !important). */
+.sj-book .odd:not(.p1):not(.p23) {
+	background-image: url(../pics/pageRight.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+}
+
+.sj-book .even:not(.p2):not(.p24) {
+	background-image: url(../pics/pageLeft.png) !important;
+	background-size: 100% 100% !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
 }
 
 
@@ -417,10 +484,172 @@
 
 /* Turn off the turn.js flip shadow (the dark "ashadow" div it injects
    as the 3rd child of each .page-wrapper) only for the hard-cover
-   pages: 1, 2, 7, 8. Pages 3-6 keep their gradient shadow as before. */
+   pages: 1, 2, 23, 24. Inner pages keep their gradient shadow. */
 .sj-book>.page-wrapper[page="1"]>div:nth-child(3),
 .sj-book>.page-wrapper[page="2"]>div:nth-child(3),
-.sj-book>.page-wrapper[page="9"]>div:nth-child(3),
-.sj-book>.page-wrapper[page="10"]>div:nth-child(3) {
+.sj-book>.page-wrapper[page="23"]>div:nth-child(3),
+.sj-book>.page-wrapper[page="24"]>div:nth-child(3) {
 	background-color: transparent !important;
+}
+
+
+/* The extra layers turn.js puts next to the hard pages (shadows) must never
+   catch the mouse, otherwise the index entries on page 2 can't be clicked. */
+.sj-book>.page-wrapper[page="1"]>div:nth-child(n+2),
+.sj-book>.page-wrapper[page="2"]>div:nth-child(n+2),
+.sj-book>.page-wrapper[page="23"]>div:nth-child(n+2),
+.sj-book>.page-wrapper[page="24"]>div:nth-child(n+2) {
+	pointer-events: none;
+}
+
+
+/* ===========================================================
+   INDEX
+=========================================================== */
+
+/* The index entries use the same box metrics as the highlighted paragraphs
+   (.box: padding 5px 22px, margin 8px 0, line-height 1.2em) and the list has
+   the same top/bottom margin as a normal paragraph (20px), so the index pages
+   have exactly the same margins and rhythm as the rest of the book. */
+.sj-book .book-content.index-page .book-index {
+	list-style: none;
+	margin: 20px 0;
+	padding: 0;
+}
+
+.sj-book .book-index li {
+	margin: 8px 0;
+}
+
+.sj-book .book-index li.book-index__sub {
+	margin-left: 30px; /* sub-chapter: indented */
+}
+
+.sj-book .book-index button {
+	position: relative;
+	isolation: isolate; /* keeps the ::before fill behind the text, inside the button */
+	width: 100%;
+	box-sizing: border-box; /* so width:100% includes the padding and the entry stops at the page margin */
+	border: 0;
+	font: inherit;
+	font-size: inherit; /* 22px, igual ao resto do texto do livro */
+	letter-spacing: inherit;
+	word-spacing: inherit;
+	text-align: left;
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 5px 34px; /* room on both sides for the pointed ends */
+	line-height: 26px; /* whole pixels: 1.2em = 26.4px made entries sit on fractional positions */
+	text-indent: 0;
+	color: #735915;
+	background: transparent;
+	cursor: pointer;
+	transition: color .35s ease;
+}
+
+/* The pennant-shaped fill. Closed, it is a thin sliver at the centre; on hover
+   its two pointed ends travel from the centre to the left and right sides.
+   Only clip-path changes (no transform), so the text stays sharp and nothing moves. */
+.sj-book .book-index button::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-color: rgba(255, 225, 77, 0); /* fades in on hover, out on leave */
+	clip-path: polygon(50% 0,
+			50% 0,
+			50% calc(50% - 4px),
+			50% calc(50% - 1.5px),
+			50% calc(50% + 1.5px),
+			50% calc(50% + 4px),
+			50% 100%,
+			50% 100%,
+			50% calc(50% + 4px),
+			50% calc(50% + 1.5px),
+			50% calc(50% - 1.5px),
+			50% calc(50% - 4px));
+	transition: clip-path .35s ease, background-color .35s ease;
+}
+
+.sj-book .book-index button:hover::before,
+.sj-book .book-index button.is-hover::before,
+.sj-book .book-index button:focus-visible::before {
+	background-color: rgba(255, 225, 77, 1);
+	clip-path: polygon(28px 0,
+			calc(100% - 28px) 0,
+			calc(100% - 4px) calc(50% - 4px),
+			calc(100% - 1px) calc(50% - 1.5px),
+			calc(100% - 1px) calc(50% + 1.5px),
+			calc(100% - 4px) calc(50% + 4px),
+			calc(100% - 28px) 100%,
+			28px 100%,
+			4px calc(50% + 4px),
+			1px calc(50% + 1.5px),
+			1px calc(50% - 1.5px),
+			4px calc(50% - 4px));
+}
+
+.sj-book .book-index button:hover,
+.sj-book .book-index button.is-hover,
+.sj-book .book-index button:focus-visible {
+	color: #8f7424; /* slightly lighter text on hover */
+	outline: none;
+}
+
+.sj-book.index-hover,
+.sj-book.index-hover * {
+	cursor: pointer !important;
+}
+
+.sj-book .book-index .book-index__heading {
+	margin: 10px 0 2px;
+	font-size: 32px; /* a bit smaller than the 45px page title */
+	line-height: 36px;
+	text-transform: uppercase;
+	text-align: center;
+	color: var(--black); /* same colour as the "Índice" title */
+}
+
+.sj-book .book-index__label {
+	text-transform: uppercase;
+}
+
+.sj-book .book-index__dots {
+	flex: 1;
+	border-bottom: 3px dotted currentColor;
+	opacity: .5;
+}
+
+
+.sj-book .book-content .book-link {
+	color: #735915;
+	text-decoration: underline;
+	text-decoration-thickness: 3px;
+	text-underline-offset: 0.2em;
+	cursor: pointer;
+}
+
+/* ---------- Page numbers ----------
+   Top outer corner of every inner page (left pages: left, right pages: right),
+   aligned with the text margin. They match the numbers shown in the index. */
+.sj-book .book-content .page-number {
+	position: absolute;
+	top: 22px;
+	font-size: 18px;
+	line-height: 1;
+	letter-spacing: 0.03em;
+	color: #6a6355;
+	text-indent: 0;
+	pointer-events: none;
+}
+
+.sj-book .p2 .book-content .page-number,
+.sj-book .even .book-content .page-number {
+	left: 40px;
+}
+
+.sj-book .p23 .book-content .page-number,
+.sj-book .odd .book-content .page-number {
+	right: 40px;
 }

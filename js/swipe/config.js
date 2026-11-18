@@ -5,9 +5,15 @@
     [3, 4]  // Módulos <-> Conquistas
   ];
 
+  // Sobre, Módulos and Conquistas form one horizontal strip, so any move
+  // between two of them is horizontal — including the direct jump from a
+  // nav click that skips the panel in between (Sobre <-> Conquistas).
+  const HORIZONTAL_MIN = Math.min(...HORIZONTAL_PAIRS.flat());
+  const HORIZONTAL_MAX = Math.max(...HORIZONTAL_PAIRS.flat());
+
   function axisFor(a, b) {
     const lo = Math.min(a, b), hi = Math.max(a, b);
-    const isHorizontal = HORIZONTAL_PAIRS.some(([p, q]) => p === lo && q === hi);
+    const isHorizontal = lo >= HORIZONTAL_MIN && hi <= HORIZONTAL_MAX;
     return isHorizontal ? "xPercent" : "yPercent";
   }
 
